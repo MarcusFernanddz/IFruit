@@ -1,0 +1,101 @@
+/* =========================================================
+   sidebar.css — Estilos da navegação lateral do IFruit
+   Inclua no <head> de todas as páginas:
+   <link rel="stylesheet" href="sidebar.css">
+   ========================================================= */
+
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    background: #0f3d2e;
+    border-right: 3px solid #1ed760;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.08);
+}
+
+.logo-area {
+    padding: 16px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0b3024;
+}
+
+.logo-img {
+    width: 150px;
+    height: 55px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.welcome {
+    padding: 16px 16px 8px;
+    font-size: 11px;
+    color: #cde8d9;
+}
+
+.welcome strong {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1ed760;
+    margin-top: 2px;
+}
+
+nav {
+    padding: 10px 0;
+    flex: 1;
+}
+
+.nav-item {
+    margin: 4px 8px;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.nav-item:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateX(4px);
+    border-left-color: #1ed760;
+}
+
+.nav-item.active {
+    background: rgba(30,215,96,0.15);
+    border-left-color: #1ed760;
+}
+
+.nav-item a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    padding: 12px 14px;
+}
+
+.label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.sublabel {
+    font-size: 11px;
+    color: #b7d7c7;
+    margin-top: 2px;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: relative;
+        min-height: auto;
+    }
+}
