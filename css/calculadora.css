@@ -1,5 +1,5 @@
 /* =========================================================
-   calculadora.css — Estilos exclusivos da página Calculadora
+   calculadora.css - Estilos exclusivos da pagina Calculadora
    ========================================================= */
 
 .btn-calculo {
@@ -15,7 +15,9 @@
     transition: 0.2s;
 }
 
-.btn-calculo:hover { background: #444; }
+.btn-calculo:hover {
+    background: #444;
+}
 
 .divisor {
     border: none;
@@ -35,27 +37,37 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
     background: #2d2d2d;
     color: #fff;
+    border: none;
     padding: 12px 16px;
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
+    font-family: inherit;
+    text-align: left;
     user-select: none;
     transition: background 0.2s;
     border-radius: 8px 8px 0 0;
 }
 
-.accordion-header:hover { background: #3a3a3a; }
+.accordion-header:hover {
+    background: #3a3a3a;
+}
 
-.accordion-item:not(.open) .accordion-header { border-radius: 8px; }
+.accordion-item:not(.open) .accordion-header {
+    border-radius: 8px;
+}
 
 .accordion-arrow {
     font-size: 12px;
     transition: transform 0.3s;
 }
 
-.accordion-item.open .accordion-arrow { transform: rotate(180deg); }
+.accordion-item.open .accordion-arrow {
+    transform: rotate(180deg);
+}
 
 .accordion-body {
     background: #3a5f4c;
@@ -89,6 +101,28 @@
     cursor: pointer;
 }
 
+.lista-frutas label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.lista-frutas label strong {
+    color: #cde8d9;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.lista-frutas-vazia {
+    color: #ffcdd2;
+    cursor: default;
+    line-height: 1.4;
+}
+
 .lista-frutas li input[type="checkbox"] {
     accent-color: #1ed760;
     width: 15px;
@@ -104,7 +138,11 @@
     margin-bottom: 14px;
 }
 
-.peso-linha { display: flex; flex-direction: column; gap: 4px; }
+.peso-linha {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
 
 .peso-linha label {
     font-size: 13px;
@@ -114,14 +152,24 @@
 
 .peso-linha input {
     padding: 8px 10px;
-    border: none;
+    border: 2px solid transparent;
     border-radius: 6px;
     font-size: 14px;
     outline: none;
     width: 160px;
 }
 
+.peso-linha input.input-erro {
+    border-color: #ff6b6b;
+}
+
 /* RESULTADO */
+.resultado-label {
+    font-size: 13px;
+    color: #cde8d9;
+    margin-bottom: 6px;
+}
+
 .resultado-valor {
     font-size: 26px;
     font-weight: bold;
@@ -141,8 +189,18 @@
     transition: 0.2s;
 }
 
-.btn-confirmar:hover { background: #c8c8c8; }
+.btn-confirmar:hover {
+    background: #c8c8c8;
+}
 
 @media (max-width: 768px) {
-    .accordion { max-width: 100%; }
+    .accordion {
+        max-width: 100%;
+    }
+
+    .lista-frutas label {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 2px;
+    }
 }
