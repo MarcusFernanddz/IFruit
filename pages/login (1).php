@@ -10,7 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($email) || empty($senha)) {
         $erro = 'Preencha o e-mail e a senha.';
     } else {
-        require_once 'conexao.php';
+      header('Location: CadCliente.php');
+        /*include __DIR__ . '/../connect/conexao.php';
 
         try {
             $stmt = $pdo->prepare('SELECT id_administrador, nome, senha FROM administrador WHERE email = ?');
@@ -27,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } catch (PDOException $e) {
             $erro = 'Erro ao conectar ao banco de dados.';
-        }
+        }*/
     }
 }
 ?>
