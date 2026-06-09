@@ -27,6 +27,7 @@ body {
     padding: 30px;
 }
 
+
 /* BARRA DE TÍTULO */
 .bloco1fundo {
     width: 100%;
@@ -132,4 +133,24 @@ body {
     .navbar       { flex-direction: column; }
     .navbar button{ width: 100%; }
     .bloco2fundo  { width: 100%; }
+}
+
+.mensagem {
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.erro {
+    background-color: #ffd6d6;
+    color: #a10000;
+    border: 1px solid #ff6b6b;
+}
+
+.sucesso {
+    background-color: #d8ffe1;
+    color: #0f6b2f;
+    border: 1px solid #1ed760;
 }

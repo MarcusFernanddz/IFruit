@@ -1,3 +1,68 @@
+<?php
+include __DIR__ . '/../connect/conexao.php';
+
+$mensagem = "";
+$tipoMensagem = "";
+
+if (isset($_POST['cadastrar'])) {
+
+    $nome     = trim($_POST['nome']);
+    $email    = trim($_POST['email']);
+    $telefone = preg_replace('/\D/', '', $_POST['telefone']);
+    $cpf = preg_replace('/\D/', '', $_POST['cpf']);
+
+    function validaCPF($cpf) {
+
+        $cpf = preg_replace('/[^0-9]/is', '', $cpf);
+
+        if (strlen($cpf) != 11) {
+            return false;
+        }
+
+        if (preg_match('/(\d)\1{10}/', $cpf)) {
+            return false;
+        }
+
+        for ($t = 9; $t < 11; $t++) {
+
+            for ($d = 0, $c = 0; $c < $t; $c++) {
+                $d += $cpf[$c] * (($t + 1) - $c);
+            }
+
+            $d = ((10 * $d) % 11) % 10;
+
+            if ($cpf[$c] != $d) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    if (!validaCPF($cpf)) {
+
+        $mensagem = "CPF inválido. Verifique os números digitados.";
+        $tipoMensagem = "erro";
+
+    } else {
+
+        $sql = "INSERT INTO comprador(nome, cpf, email, telefone)
+                VALUES ('$nome', '$cpf', '$email', '$telefone')";
+
+        if (mysqli_query($conn, $sql)) {
+
+            $mensagem = "Cliente cadastrado com sucesso!";
+            $tipoMensagem = "sucesso";
+
+        } else {
+
+            $mensagem = "Erro ao cadastrar cliente: " . mysqli_error($conn);
+            $tipoMensagem = "erro";
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,6 +71,7 @@
 <title>iFruit - Cadastros</title>
 <link rel="stylesheet" href="../css/sidebar.css">
 <link rel="stylesheet" href="../css/global.css">
+
 </head>
 
 <body>
@@ -29,10 +95,15 @@
         <p>Novo Cliente</p>
         <form class="formulario" action="" method="POST">
             <input type="text"  name="nome"     placeholder="Nome do Cliente" required>
-            <input type="text"  name="cpf"      placeholder="CPF"             required>
+            <input type="text" id="cpf" name="cpf" placeholder="CPF" maxlength="14" required> 
             <input type="email" name="email"    placeholder="Email"           required>
-            <input type="text"  name="telefone" placeholder="Telefone"        required>
+            <input type="text" id="telefone" name="telefone" placeholder="Telefone" maxlength="11" required>
             <button type="submit" name="cadastrar">Cadastrar Cliente</button>
+            <?php if (!empty($mensagem)): ?>
+            <div class="mensagem <?php echo $tipoMensagem; ?>">
+                <?php echo $mensagem; ?>
+            </div>
+            <?php endif; ?>
         </form>
     </div>
 
@@ -40,22 +111,3 @@
 
 </body>
 </html>
-<?php
-include __DIR__ . '/../connect/conexao.php';
-
-if (isset($_POST['cadastrar'])) {
-    $nome     = trim($_POST['nome']);
-    $email    = trim($_POST['email']);
-    $telefone = trim($_POST['telefone']);
-    $cpf      = trim($_POST['cpf']);
-
-    $sql = "INSERT INTO comprador(nome, cpf, email, telefone)
-            VALUES ('$nome', '$cpf', '$email', '$telefone')";
-
-    if (mysqli_query($conn, $sql)) {
-        echo "Cliente cadastrado com sucesso!";
-    } else {
-        echo "Erro: " . mysqli_error($conn);
-    }
-}
-?>

@@ -1,3 +1,19 @@
+<?php
+include __DIR__ . '/../connect/conexao.php';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $nome = trim($_POST['produto']);
+    $pk   = trim($_POST['preco']);
+
+    $sql = "INSERT INTO fruta(nome, precokg) VALUES ('$nome', '$pk')";
+
+    if (mysqli_query($conn, $sql)) {
+        echo "Produto cadastrado com sucesso!";
+    } else {
+        echo "Erro: " . mysqli_error($conn);
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -38,19 +54,3 @@
 
 </body>
 </html>
-<?php
-include __DIR__ . '/../connect/conexao.php';
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nome = trim($_POST['produto']);
-    $pk   = trim($_POST['preco']);
-
-    $sql = "INSERT INTO fruta(nome, precokg) VALUES ('$nome', '$pk')";
-
-    if (mysqli_query($conn, $sql)) {
-        echo "Produto cadastrado com sucesso!";
-    } else {
-        echo "Erro: " . mysqli_error($conn);
-    }
-}
-?>
