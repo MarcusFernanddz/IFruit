@@ -1,44 +1,54 @@
+<?php
+include __DIR__ . '/../connect/conexao.php';
+
+
+if (isset($_POST['frutas'])) {
+    $id_fruta = $_POST['frutas'];
+    $qtd = $_POST['quantidade'];
+
+    $sql = "SELECT * FROM fruta WHERE id_fruta = '$id_fruta'";
+    $result = mysqli_query($conn, $sql);
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        echo "Nome da fruta: " . $row['nome'] . "<br>";
+        echo "Preço por Quilograma: " . $row['precokg'] . "<br>";
+        echo "Quantidade: " . $qtd . "<br>";
+        echo "Total: " . ($row['precokg'] * $qtd) . "<br>";
+    } else {
+        echo "Fruta não encontrada.";
+    }
+}
+?>
+
 <!DOCTYPE html>
-<html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>iFruit - Calculadora</title>
-        <link rel="stylesheet" href="../css/sidebar.css">
-        <link rel="stylesheet" href="../css/global.css">
-        <link rel="stylesheet" href="../css/calculadora.css">
-        <style>
-            select {
-                width: 300px;
-                padding: 10px;
-                font-size: 16px;
-                border-radius: 6px;
-            }
-            .campo-produto {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-width: 500px;
-            }
-        </style>
-    </head>
-        <body>
-            <?php// $paginaAtiva = 'calculadora'; require_once 'sidebar.php';// ?>
-            <?php include __DIR__ . '/../connect/conexao.php';?>
-            
-            <select id="produto-select">
-                <option value="">Selecione um produto</option>
-                <?php
-                    $sql = "SELECT id_fruta, nome, precokg FROM fruta";
-                    $result = mysqli_query($conn, $sql);
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo "<option value='" . $row['id_fruta'] . "'>" . $row['nome'] . " - R$ " . number_format($row['precokg'], 2, ',', '.') . "</option>";
-                    }
-                ?>
-            </select>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Preços</title>
+</head>
 
-            <label>Quantidade (kg):</label>
-            <input type="number" id="quantidade" placeholder="Quantidade (kg)" min="0" step="0.05">
+<body>
 
-        </body>
-    </html>
+    <form method="post">
+
+        <select name="frutas">
+            <?php
+            $sql = "SELECT * FROM fruta";
+            $result = mysqli_query($conn, $sql);
+
+            while ($fruta = mysqli_fetch_assoc($result)) {
+                echo "<option value='" . $fruta['id_fruta'] . "'>" 
+                   . $fruta['nome'] 
+                   . "</option>";
+            }
+            ?>
+        </select>
+        <input type="number" name="quantidade" placeholder="Quantidade em kg" required>
+        <input type="submit" value="Calcular">
+
+    </form>
+
+
+</body>
+</html>
