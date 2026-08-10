@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <body>
 
-<?php $paginaAtiva = 'cadastros'; require_once 'sidebar.php'; ?>
+<?php $paginaAtiva = 'CadProd'; require_once 'sidebar.php'; ?>
 
 <main class="main">
 

@@ -1,6 +1,5 @@
 <?php
-include __DIR__ . '/../connect/conexao.php';
-
+$paginaAtiva = 'Calculadora'; require_once 'sidebar.php'; include __DIR__ . '/../connect/conexao.php';
 
 if (isset($_POST['frutas'])) {
     $id_fruta = $_POST['frutas'];
@@ -19,13 +18,14 @@ if (isset($_POST['frutas'])) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Preços</title>
+    <!-- <link rel="stylesheet" href="../css/sidebar.css"> -->
+    <link rel="stylesheet" href="../css/global.css">
 </head>
 
 <body>
