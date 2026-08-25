@@ -1,0 +1,21 @@
+/connect/conexao.local.php
+/.env
+/.vscode/
+/.idea/
+/node_modules/
+/*.log
+/*.zip
+*.sqlite
+.DS_Store
+Thumbs.db
+
+# Composer / PHP
+/vendor/
+
+# OS files
+ehthumbs.db
+Icon?
+
+# XAMPP / local files
+/tmp/
+/uploads/

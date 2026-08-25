@@ -1,0 +1,228 @@
+/* =========================================================
+   calculadora.css — Estilos exclusivos da página Calculadora
+   Segue o mesmo padrão visual das demais páginas do iFruit:
+   fundo claro, painel lateral verde, cartão verde de conteúdo
+   e botões no verde de destaque (#1ed760).
+
+   Inclua depois de sidebar.css e global.css:
+   <link rel="stylesheet" href="../css/sidebar.css">
+   <link rel="stylesheet" href="../css/global.css">
+   <link rel="stylesheet" href="../css/calculadora.css">
+   ========================================================= */
+
+/* Normalização específica da página Calculadora
+   Aumenta a especificidade para sobrescrever regras globais quando
+   necessário e garante consistência com o layout principal.
+*/
+.main .calc-titulo, .main .calc-card, .main .calc-linhas, .main .calc-linha,
+.main .calc-btn-add, .main .calc-btn-remover, .main .calc-resultado {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Título da página (mesmo estilo do bloco1fundo usado nas outras telas) */
+.main .calc-titulo {
+    width: 100%;
+    height: 60px;
+    background: #d9d9d9;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    border-radius: 10px;
+    border-bottom: 1px solid #bdbdbd;
+    margin-bottom: 30px;
+}
+
+.calc-titulo p {
+    font-size: 22px;
+    font-weight: bold;
+    color: #0f3d2e;
+}
+
+/* Cartão verde que envolve o formulário da calculadora */
+.calc-card {
+    width: 100%;
+    max-width: 800px;
+    background: #3a5f4c;
+    border-radius: 12px;
+    padding: 28px 25px;
+    color: #fff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.calc-card h2 {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Formulário */
+.calc-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.calc-card label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #cde8d9;
+    margin-bottom: -8px;
+}
+
+.calc-card select,
+.calc-card input[type="number"],
+.calc-card input[type="text"] {
+    padding: 12px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    color: #222;
+}
+
+.calc-card select:focus,
+.calc-card input:focus {
+    border-color: #1ed760;
+}
+
+.calc-card input[type="submit"] {
+    width: 200px;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #1ed760;
+    color: #0f3d2e;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.calc-card input[type="submit"]:hover {
+    background: #18b84f;
+    transform: translateY(-1px);
+}
+
+/* Linhas dinâmicas de item (fruta + quantidade) */
+.calc-linhas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.calc-linha {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.calc-linha .calc-select-fruta,
+.calc-linha .calc-select-fruta-input {
+    flex: 2;
+}
+
+.calc-linha input[type="number"] {
+    flex: 0 0 180px;
+    min-width: 140px;
+    padding: 14px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #222;
+    font-size: 16px;
+}
+
+.calc-btn-remover {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.calc-btn-remover:hover {
+    background: #ff6b6b;
+}
+
+/* Botão de adicionar item */
+.calc-btn-add {
+    align-self: flex-start;
+    padding: 9px 16px;
+    border: 1px dashed #1ed760;
+    border-radius: 6px;
+    background: transparent;
+    color: #1ed760;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.calc-btn-add:hover {
+    background: rgba(30, 215, 96, 0.12);
+}
+
+/* Resultado do cálculo */
+.calc-resultado {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.calc-resultado strong {
+    color: #1ed760;
+}
+
+.calc-resultado.calc-erro {
+    color: #ffb3b3;
+}
+
+.calc-lista-itens {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.calc-lista-itens li {
+    font-size: 14px;
+    color: #cde8d9;
+}
+
+.calc-total-geral {
+    font-size: 20px;
+    font-weight: bold;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Responsivo: linhas empilham em telas pequenas */
+@media (max-width: 480px) {
+    .calc-linha {
+        flex-wrap: wrap;
+    }
+
+    .calc-linha .calc-select-fruta,
+    .calc-linha input[type="number"] {
+        flex: 1 1 100%;
+    }
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .calc-card {
+        max-width: 100%;
+    }
+}
