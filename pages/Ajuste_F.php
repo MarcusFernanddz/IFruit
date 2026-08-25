@@ -5,6 +5,24 @@ $mensagem     = "";
 $tipoMensagem = "";
 $frutaSelecionada = null;
 
+<<<<<<< HEAD
+=======
+/* ── EXCLUIR PRODUTO ── */
+if (isset($_POST['excluir'])) {
+    $idExcluir = intval($_POST['id_fruta']);
+    if ($idExcluir > 0) {
+        $delRes = mysqli_query($conn, "DELETE FROM fruta WHERE id_fruta=$idExcluir");
+        if ($delRes) {
+            $mensagem = "Produto excluído com sucesso.";
+            $tipoMensagem = "sucesso";
+        } else {
+            $mensagem = "Erro ao excluir produto: " . mysqli_error($conn);
+            $tipoMensagem = "erro";
+        }
+    }
+}
+
+>>>>>>> minhas-alteracoes
 /* ── ETAPA 2: salvar edição ── */
 if (isset($_POST['salvar'])) {
 
@@ -48,8 +66,13 @@ if (isset($_POST['salvar'])) {
 
 /* ── ETAPA 1: carregar fruta para edição ── */
 if (isset($_POST['selecionar'])) {
+<<<<<<< HEAD
     $id  = intval($_POST['id_fruta']);
     $res = mysqli_query($conn, "SELECT * FROM fruta WHERE id_fruta=$id");
+=======
+    $nome = mysqli_real_escape_string($conn, trim($_POST['produto'] ?? ''));
+    $res = mysqli_query($conn, "SELECT * FROM fruta WHERE nome='$nome' LIMIT 1");
+>>>>>>> minhas-alteracoes
     $frutaSelecionada = mysqli_fetch_assoc($res);
 }
 
@@ -64,6 +87,10 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
     <title>iFruit - Ajuste de Produto</title>
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/global.css">
+<<<<<<< HEAD
+=======
+    <!-- Autocomplete styles moved to css/global.css -->
+>>>>>>> minhas-alteracoes
 </head>
 <body>
 
@@ -84,7 +111,11 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
 
     <div class="bloco2fundo">
         <?php if (!empty($mensagem)): ?>
+<<<<<<< HEAD
             <div class="mensagem <?= $tipoMensagem === 'erro' ? 'erro' : 'sucesso' ?>" style="display:block; width:min(100%,520px); margin:0 auto 16px; padding:10px 14px; font-size:13px; border-radius:8px; text-align:center;">
+=======
+            <div class="mensagem <?= $tipoMensagem === 'erro' ? 'erro' : 'sucesso' ?>">
+>>>>>>> minhas-alteracoes
                 <?= htmlspecialchars($mensagem) ?>
             </div>
         <?php endif; ?>
@@ -94,6 +125,7 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
         <!-- FORM DE SELEÇÃO -->
         <?php if (!$frutaSelecionada): ?>
         <form class="formulario" action="" method="POST">
+<<<<<<< HEAD
             <select name="id_fruta" required
                     style="padding:12px; border-radius:6px; font-size:14px; outline:none; border:none;">
                 <option value="">-- Escolha um produto --</option>
@@ -106,6 +138,21 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
             </select>
 
             <button type="submit" name="selecionar" style="width:200px;">
+=======
+                 <input type="search" class="pesquisa-datalist" name="produto" list="produtos_disponiveis" placeholder="Pesquisar produto por nome" required
+                     style="padding:12px; border-radius:6px; font-size:14px; outline:none; border:none;">
+                 <datalist id="produtos_disponiveis">
+                <?php
+                mysqli_data_seek($listaFrutas, 0);
+                while ($f = mysqli_fetch_assoc($listaFrutas)):
+                    $preco = number_format($f['precokg'], 2, ',', '.');
+                ?>
+                    <option value="<?= htmlspecialchars($f['nome']) ?>">R$ <?= $preco ?>/kg</option>
+                <?php endwhile; ?>
+            </datalist>
+
+            <button type="submit" name="selecionar" style="width:200px; margin-top:8px;">
+>>>>>>> minhas-alteracoes
                 Carregar Produto
             </button>
         </form>
@@ -133,6 +180,12 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
                 <button type="submit" name="salvar" style="width:200px;">
                     Salvar Alterações
                 </button>
+<<<<<<< HEAD
+=======
+                <button type="submit" name="excluir" style="width:160px; padding:12px; border:none; border-radius:6px; background:#c0392b; color:#fff; font-weight:bold; cursor:pointer;">
+                    Excluir Produto
+                </button>
+>>>>>>> minhas-alteracoes
                 <a href="Ajuste_F.php">
                     <button type="button" style="width:160px; padding:12px; border:none; border-radius:6px; background:#888; color:#fff; font-weight:bold; cursor:pointer;">
                         Trocar Produto
@@ -145,5 +198,9 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
     </div>
 
 </main>
+<<<<<<< HEAD
+=======
+
+>>>>>>> minhas-alteracoes
 </body>
 </html>

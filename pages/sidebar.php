@@ -40,7 +40,11 @@ $paginaAtiva = $paginaAtiva ?? '';
         </div>
 
         <div class="nav-item <?= $paginaAtiva === 'venda'        ? 'active' : '' ?>">
+<<<<<<< HEAD
             <a href="venda.php">
+=======
+            <a href="Venda.php">
+>>>>>>> minhas-alteracoes
                 <div class="label">Venda</div>
                 <div class="sublabel">Realizar venda</div>
             </a>
@@ -54,7 +58,11 @@ $paginaAtiva = $paginaAtiva ?? '';
         </div>
 
         <div class="nav-item <?= $paginaAtiva === 'historico'    ? 'active' : '' ?>">
+<<<<<<< HEAD
             <a href="historico.php">
+=======
+            <a href="Historico.php">
+>>>>>>> minhas-alteracoes
                 <div class="label">Histórico</div>
                 <div class="sublabel">Vendas anteriores</div>
             </a>

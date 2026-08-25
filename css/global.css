@@ -135,6 +135,7 @@ body {
     .bloco2fundo  { width: 100%; }
 }
 
+<<<<<<< HEAD
 .mensagem {
     padding: 12px;
     border-radius: 6px;
@@ -153,4 +154,43 @@ body {
     background-color: #d8ffe1;
     color: #0f6b2f;
     border: 1px solid #1ed760;
+=======
+.bloco2fundo .mensagem {
+    display: block;
+    width: min(100%, 520px);
+    margin: 0 auto 16px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.35;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    border: 1px solid transparent;
+}
+
+.erro {
+    background-color: #ffe2e2;
+    color: #9b1c1c;
+    border-color: #f08a8a;
+}
+
+.sucesso {
+    background-color: #e8fff1;
+    color: #12693a;
+    border-color: #4fd978;
+}
+
+/* Autocomplete shared styles used by Ajuste_C, Ajuste_F and Calculadora */
+.autocomplete { position: relative; }
+/* (autocomplete and button helper styles were moved back to per-page inline styles to restore original look) */
+
+.pesquisa-datalist::-webkit-calendar-picker-indicator {
+    display: none;
+}
+
+.pesquisa-datalist {
+    appearance: none;
+    -webkit-appearance: none;
+>>>>>>> minhas-alteracoes
 }

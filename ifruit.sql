@@ -32,7 +32,12 @@ CREATE TABLE `fruta` (
   `id_fruta`      int(11)     NOT NULL AUTO_INCREMENT,
   `nome`          varchar(40) NOT NULL,
   `precokg`       float       NOT NULL,
+<<<<<<< HEAD
   PRIMARY KEY (`id_fruta`)
+=======
+  PRIMARY KEY (`id_fruta`),
+  UNIQUE KEY `nome_unique` (`nome`)
+>>>>>>> minhas-alteracoes
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `venda` (

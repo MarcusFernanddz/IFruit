@@ -10,8 +10,23 @@
    <link rel="stylesheet" href="../css/calculadora.css">
    ========================================================= */
 
+<<<<<<< HEAD
 /* Título da página (mesmo estilo do bloco1fundo usado nas outras telas) */
 .calc-titulo {
+=======
+/* Normalização específica da página Calculadora
+   Aumenta a especificidade para sobrescrever regras globais quando
+   necessário e garante consistência com o layout principal.
+*/
+.main .calc-titulo, .main .calc-card, .main .calc-linhas, .main .calc-linha,
+.main .calc-btn-add, .main .calc-btn-remover, .main .calc-resultado {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Título da página (mesmo estilo do bloco1fundo usado nas outras telas) */
+.main .calc-titulo {
+>>>>>>> minhas-alteracoes
     width: 100%;
     height: 60px;
     background: #d9d9d9;
@@ -32,7 +47,11 @@
 /* Cartão verde que envolve o formulário da calculadora */
 .calc-card {
     width: 100%;
+<<<<<<< HEAD
     max-width: 480px;
+=======
+    max-width: 800px;
+>>>>>>> minhas-alteracoes
     background: #3a5f4c;
     border-radius: 12px;
     padding: 28px 25px;
@@ -109,13 +128,29 @@
     align-items: center;
 }
 
+<<<<<<< HEAD
 .calc-linha .calc-select-fruta {
+=======
+.calc-linha .calc-select-fruta,
+.calc-linha .calc-select-fruta-input {
+>>>>>>> minhas-alteracoes
     flex: 2;
 }
 
 .calc-linha input[type="number"] {
+<<<<<<< HEAD
     flex: 1;
     min-width: 0;
+=======
+    flex: 0 0 180px;
+    min-width: 140px;
+    padding: 14px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #222;
+    font-size: 16px;
+>>>>>>> minhas-alteracoes
 }
 
 .calc-btn-remover {
@@ -208,4 +243,8 @@
     .calc-card {
         max-width: 100%;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> minhas-alteracoes

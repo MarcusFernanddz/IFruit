@@ -1,10 +1,17 @@
 <?php
 include __DIR__ . '/../connect/conexao.php';
 
+<<<<<<< HEAD
+=======
+$mensagem = "";
+$tipoMensagem = "";
+
+>>>>>>> minhas-alteracoes
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nome = trim($_POST['produto']);
     $pk   = trim($_POST['preco']);
 
+<<<<<<< HEAD
     $sql = "INSERT INTO fruta(nome, precokg) VALUES ('$nome', '$pk')";
 
     if (mysqli_query($conn, $sql)) {
@@ -14,6 +21,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+=======
+    if ($nome === '') {
+        $mensagem = "Informe o nome do produto.";
+        $tipoMensagem = "erro";
+    } elseif ($pk === '' || floatval(str_replace(',', '.', $pk)) < 0) {
+        $mensagem = "Informe um preço válido.";
+        $tipoMensagem = "erro";
+    } else {
+        $nomeEsc = mysqli_real_escape_string($conn, $nome);
+        $pkEsc = mysqli_real_escape_string($conn, $pk);
+
+        $verificaNome = mysqli_query($conn, "SELECT id_fruta FROM fruta WHERE LOWER(nome) = LOWER('$nomeEsc') LIMIT 1");
+
+        if (mysqli_num_rows($verificaNome) > 0) {
+            $mensagem = "Já existe um produto cadastrado com este nome.";
+            $tipoMensagem = "erro";
+        } else {
+            $sql = "INSERT INTO fruta(nome, precokg) VALUES ('$nomeEsc', '$pkEsc')";
+
+            if (mysqli_query($conn, $sql)) {
+                $mensagem = "Produto cadastrado com sucesso!";
+                $tipoMensagem = "sucesso";
+            } else {
+                if (strpos(mysqli_error($conn), 'Duplicate entry') !== false || strpos(mysqli_error($conn), 'nome_unique') !== false) {
+                    $mensagem = "Não foi possível cadastrar: já existe um produto com este nome.";
+                } else {
+                    $mensagem = "Erro ao cadastrar produto: " . mysqli_error($conn);
+                }
+                $tipoMensagem = "erro";
+            }
+        }
+    }
+}
+?>
+
+>>>>>>> minhas-alteracoes
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -26,7 +69,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <body>
 
+<<<<<<< HEAD
 <?php $paginaAtiva = 'CadProd'; require_once 'sidebar.php'; ?>
+=======
+<?php $paginaAtiva = 'cadastros'; require_once 'sidebar.php'; ?>
+>>>>>>> minhas-alteracoes
 
 <main class="main">
 
@@ -42,7 +89,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <div class="bloco2fundo">
+<<<<<<< HEAD
         <p>Novo Produto</p>
+=======
+        <?php if (!empty($mensagem)): ?>
+            <div class="mensagem <?= $tipoMensagem === 'erro' ? 'erro' : 'sucesso' ?>">
+                <?= htmlspecialchars($mensagem) ?>
+            </div>
+        <?php endif; ?>
+
+        <p>Novo Produto</p>
+
+>>>>>>> minhas-alteracoes
         <form class="formulario" action="" method="POST">
             <input type="text"   name="produto" placeholder="Nome do Produto" required>
             <input type="number" name="preco"   placeholder="Preço" min="0" step="0.05" required>
