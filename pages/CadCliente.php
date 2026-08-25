@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include __DIR__ . '/../connect/conexao.php';
 
 $mensagem = "";
@@ -42,25 +42,11 @@ if (isset($_POST['cadastrar'])) {
 
     if (!validaCPF($cpf)) {
 
-        $mensagem = "CPF inválido. Verifique os números digitados.";
+        $mensagem = "CPF invÃ¡lido. Verifique os nÃºmeros digitados.";
         $tipoMensagem = "erro";
 
     } else {
 
-<<<<<<< HEAD
-        $sql = "INSERT INTO comprador(nome, cpf, email, telefone)
-                VALUES ('$nome', '$cpf', '$email', '$telefone')";
-
-        if (mysqli_query($conn, $sql)) {
-
-            $mensagem = "Cliente cadastrado com sucesso!";
-            $tipoMensagem = "sucesso";
-
-        } else {
-
-            $mensagem = "Erro ao cadastrar cliente: " . mysqli_error($conn);
-            $tipoMensagem = "erro";
-=======
         $nomeEsc = mysqli_real_escape_string($conn, $nome);
         $emailEsc = mysqli_real_escape_string($conn, $email);
         $telefoneEsc = mysqli_real_escape_string($conn, $telefone);
@@ -70,7 +56,7 @@ if (isset($_POST['cadastrar'])) {
 
         if (mysqli_num_rows($verifica) > 0) {
 
-            $mensagem = "Já existe um cliente cadastrado com este CPF.";
+            $mensagem = "JÃ¡ existe um cliente cadastrado com este CPF.";
             $tipoMensagem = "erro";
 
         } else {
@@ -91,13 +77,12 @@ if (isset($_POST['cadastrar'])) {
                 }
             } catch (mysqli_sql_exception $e) {
                 if ($e->getCode() == 1062) {
-                    $mensagem = "Não foi possível cadastrar: já existe um cliente com este CPF.";
+                    $mensagem = "NÃ£o foi possÃ­vel cadastrar: jÃ¡ existe um cliente com este CPF.";
                 } else {
                     $mensagem = "Erro ao cadastrar cliente: " . $e->getMessage();
                 }
                 $tipoMensagem = "erro";
             }
->>>>>>> minhas-alteracoes
         }
     }
 }
@@ -107,12 +92,6 @@ if (isset($_POST['cadastrar'])) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<<<<<<< HEAD
-<title>iFruit - Cadastros</title>
-<link rel="stylesheet" href="../css/sidebar.css">
-<link rel="stylesheet" href="../css/global.css">
-
-=======
 
 <title>iFruit - Cadastros</title>
 
@@ -222,7 +201,7 @@ nav{
     margin-top:2px;
 }
 
-/* CONTEÚDO */
+/* CONTEÃšDO */
 .main{
     margin-left:250px;
     flex:1;
@@ -276,7 +255,7 @@ nav{
     transform:translateY(-2px);
 }
 
-/* BOTÃO ATIVO */
+/* BOTÃƒO ATIVO */
 .navbar button.ativo{
     background: #11c911c2;
     color:white;
@@ -391,19 +370,10 @@ nav{
 }
 
 </style>
->>>>>>> minhas-alteracoes
 </head>
 
 <body>
 
-<<<<<<< HEAD
-<?php $paginaAtiva = 'cadastros'; require_once 'sidebar.php'; ?>
-
-<main class="main">
-
-    <div class="bloco1fundo">
-        <p>Cadastros/Ajuste</p>
-=======
 <!-- SIDEBAR -->
 <aside class="sidebar">
 
@@ -444,7 +414,7 @@ nav{
 
         <div class="nav-item">
             <a href="Ajuste_C.php">
-                <div class="label">Histórico</div>
+                <div class="label">HistÃ³rico</div>
                 <div class="sublabel">Vendas anteriores</div>
             </a>
         </div>
@@ -453,13 +423,12 @@ nav{
 
 </aside>
 
-<!-- CONTEÚDO -->
+<!-- CONTEÃšDO -->
 <main class="main">
 
     <!-- TOPO -->
     <div class="bloco1fundo">
         <p>Cadastros / Cliente</p>
->>>>>>> minhas-alteracoes
     </div>
 
     <div class="navbar">
@@ -470,20 +439,6 @@ nav{
     </div>
 
     <div class="bloco2fundo">
-<<<<<<< HEAD
-        <p>Novo Cliente</p>
-        <form class="formulario" action="" method="POST">
-            <input type="text"  name="nome"     placeholder="Nome do Cliente" required>
-            <input type="text" id="cpf" name="cpf" placeholder="CPF" maxlength="14" required> 
-            <input type="email" name="email"    placeholder="Email"           required>
-            <input type="text" id="telefone" name="telefone" placeholder="Telefone" maxlength="11" required>
-            <button type="submit" name="cadastrar">Cadastrar Cliente</button>
-            <?php if (!empty($mensagem)): ?>
-            <div class="mensagem <?php echo $tipoMensagem; ?>">
-                <?php echo $mensagem; ?>
-            </div>
-            <?php endif; ?>
-=======
         <?php if (!empty($mensagem)): ?>
             <div class="mensagem <?= $tipoMensagem === 'erro' ? 'erro' : 'sucesso' ?>">
                 <?= htmlspecialchars($mensagem) ?>
@@ -500,7 +455,6 @@ nav{
             <button type="submit" name="cadastrar">
                 Cadastrar Cliente
             </button>
->>>>>>> minhas-alteracoes
         </form>
     </div>
 

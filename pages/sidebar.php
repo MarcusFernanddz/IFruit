@@ -1,12 +1,12 @@
-<?php
+﻿<?php
 /**
- * sidebar.php — Componente reutilizável da navegação lateral do IFruit
+ * sidebar.php â€” Componente reutilizÃ¡vel da navegaÃ§Ã£o lateral do IFruit
  *
- * Como usar em qualquer página:
+ * Como usar em qualquer pÃ¡gina:
  *   <?php require_once 'sidebar.php'; ?>
  *
- * Para marcar o item ativo na sidebar, defina a variável $paginaAtiva
- * ANTES de incluir este arquivo. Valores possíveis:
+ * Para marcar o item ativo na sidebar, defina a variÃ¡vel $paginaAtiva
+ * ANTES de incluir este arquivo. Valores possÃ­veis:
  *   'cadastros' | 'venda' | 'calculadora' | 'historico'
  *
  * Exemplo:
@@ -40,11 +40,7 @@ $paginaAtiva = $paginaAtiva ?? '';
         </div>
 
         <div class="nav-item <?= $paginaAtiva === 'venda'        ? 'active' : '' ?>">
-<<<<<<< HEAD
-            <a href="venda.php">
-=======
             <a href="Venda.php">
->>>>>>> minhas-alteracoes
                 <div class="label">Venda</div>
                 <div class="sublabel">Realizar venda</div>
             </a>
@@ -58,12 +54,8 @@ $paginaAtiva = $paginaAtiva ?? '';
         </div>
 
         <div class="nav-item <?= $paginaAtiva === 'historico'    ? 'active' : '' ?>">
-<<<<<<< HEAD
-            <a href="historico.php">
-=======
             <a href="Historico.php">
->>>>>>> minhas-alteracoes
-                <div class="label">Histórico</div>
+                <div class="label">HistÃ³rico</div>
                 <div class="sublabel">Vendas anteriores</div>
             </a>
         </div>

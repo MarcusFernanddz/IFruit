@@ -1,8 +1,8 @@
-/* =========================================================
-   calculadora.css — Estilos exclusivos da página Calculadora
-   Segue o mesmo padrão visual das demais páginas do iFruit:
-   fundo claro, painel lateral verde, cartão verde de conteúdo
-   e botões no verde de destaque (#1ed760).
+﻿/* =========================================================
+   calculadora.css â€” Estilos exclusivos da pÃ¡gina Calculadora
+   Segue o mesmo padrÃ£o visual das demais pÃ¡ginas do iFruit:
+   fundo claro, painel lateral verde, cartÃ£o verde de conteÃºdo
+   e botÃµes no verde de destaque (#1ed760).
 
    Inclua depois de sidebar.css e global.css:
    <link rel="stylesheet" href="../css/sidebar.css">
@@ -10,13 +10,9 @@
    <link rel="stylesheet" href="../css/calculadora.css">
    ========================================================= */
 
-<<<<<<< HEAD
-/* Título da página (mesmo estilo do bloco1fundo usado nas outras telas) */
-.calc-titulo {
-=======
-/* Normalização específica da página Calculadora
+/* NormalizaÃ§Ã£o especÃ­fica da pÃ¡gina Calculadora
    Aumenta a especificidade para sobrescrever regras globais quando
-   necessário e garante consistência com o layout principal.
+   necessÃ¡rio e garante consistÃªncia com o layout principal.
 */
 .main .calc-titulo, .main .calc-card, .main .calc-linhas, .main .calc-linha,
 .main .calc-btn-add, .main .calc-btn-remover, .main .calc-resultado {
@@ -24,9 +20,8 @@
     font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-/* Título da página (mesmo estilo do bloco1fundo usado nas outras telas) */
+/* TÃ­tulo da pÃ¡gina (mesmo estilo do bloco1fundo usado nas outras telas) */
 .main .calc-titulo {
->>>>>>> minhas-alteracoes
     width: 100%;
     height: 60px;
     background: #d9d9d9;
@@ -44,14 +39,10 @@
     color: #0f3d2e;
 }
 
-/* Cartão verde que envolve o formulário da calculadora */
+/* CartÃ£o verde que envolve o formulÃ¡rio da calculadora */
 .calc-card {
     width: 100%;
-<<<<<<< HEAD
-    max-width: 480px;
-=======
     max-width: 800px;
->>>>>>> minhas-alteracoes
     background: #3a5f4c;
     border-radius: 12px;
     padding: 28px 25px;
@@ -65,7 +56,7 @@
     margin-bottom: 20px;
 }
 
-/* Formulário */
+/* FormulÃ¡rio */
 .calc-card form {
     display: flex;
     flex-direction: column;
@@ -115,7 +106,7 @@
     transform: translateY(-1px);
 }
 
-/* Linhas dinâmicas de item (fruta + quantidade) */
+/* Linhas dinÃ¢micas de item (fruta + quantidade) */
 .calc-linhas {
     display: flex;
     flex-direction: column;
@@ -128,20 +119,12 @@
     align-items: center;
 }
 
-<<<<<<< HEAD
-.calc-linha .calc-select-fruta {
-=======
 .calc-linha .calc-select-fruta,
 .calc-linha .calc-select-fruta-input {
->>>>>>> minhas-alteracoes
     flex: 2;
 }
 
 .calc-linha input[type="number"] {
-<<<<<<< HEAD
-    flex: 1;
-    min-width: 0;
-=======
     flex: 0 0 180px;
     min-width: 140px;
     padding: 14px;
@@ -150,7 +133,6 @@
     background: #fff;
     color: #222;
     font-size: 16px;
->>>>>>> minhas-alteracoes
 }
 
 .calc-btn-remover {
@@ -171,7 +153,7 @@
     background: #ff6b6b;
 }
 
-/* Botão de adicionar item */
+/* BotÃ£o de adicionar item */
 .calc-btn-add {
     align-self: flex-start;
     padding: 9px 16px;
@@ -189,7 +171,7 @@
     background: rgba(30, 215, 96, 0.12);
 }
 
-/* Resultado do cálculo */
+/* Resultado do cÃ¡lculo */
 .calc-resultado {
     margin-top: 22px;
     padding-top: 18px;
@@ -243,8 +225,4 @@
     .calc-card {
         max-width: 100%;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> minhas-alteracoes

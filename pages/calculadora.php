@@ -1,31 +1,10 @@
-<?php
-<<<<<<< HEAD
-$paginaAtiva = 'calculadora'; require_once 'sidebar.php'; include __DIR__ . '/../connect/conexao.php';
-=======
+﻿<?php
 $paginaAtiva = 'calculadora';
 include __DIR__ . '/../connect/conexao.php';
->>>>>>> minhas-alteracoes
 
 $itens = [];
 $totalGeral = 0;
 $erro = "";
-<<<<<<< HEAD
-
-if (isset($_POST['frutas']) && is_array($_POST['frutas'])) {
-
-    $listaFrutas = $_POST['frutas'];
-    $listaQtds   = $_POST['quantidade'];
-
-    foreach ($listaFrutas as $i => $id_fruta) {
-
-        $qtd = isset($listaQtds[$i]) ? $listaQtds[$i] : 0;
-
-        if ($id_fruta === "" || $qtd === "" || $qtd <= 0) {
-            continue;
-        }
-
-        $sql = "SELECT * FROM fruta WHERE id_fruta = '$id_fruta'";
-=======
 $numLinhas = max(1, min(8, intval($_POST['num_linhas'] ?? $_GET['linhas'] ?? 1)));
 
 if (isset($_POST['adicionar_linha'])) {
@@ -48,11 +27,11 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
 if (!isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha']) && isset($_POST['frutas']) && is_array($_POST['frutas'])) {
 
     $postFrutas = $_POST['frutas'];
-    // segurança: `quantidade` pode não estar presente ou não ser array
+    // seguranÃ§a: `quantidade` pode nÃ£o estar presente ou nÃ£o ser array
     if (isset($_POST['quantidade']) && is_array($_POST['quantidade'])) {
         $listaQtds = $_POST['quantidade'];
     } else {
-        // preenche com zeros garantindo índices compatíveis
+        // preenche com zeros garantindo Ã­ndices compatÃ­veis
         $listaQtds = array_fill(0, count($postFrutas), 0);
     }
 
@@ -66,7 +45,6 @@ if (!isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha']) && isse
 
         $nomeFruta = mysqli_real_escape_string($conn, trim($id_fruta));
         $sql = "SELECT * FROM fruta WHERE nome = '$nomeFruta' LIMIT 1";
->>>>>>> minhas-alteracoes
         $result = mysqli_query($conn, $sql);
 
         if ($row = mysqli_fetch_assoc($result)) {
@@ -83,7 +61,7 @@ if (!isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha']) && isse
     }
 
     if (empty($itens)) {
-        $erro = "Nenhum item válido foi informado.";
+        $erro = "Nenhum item vÃ¡lido foi informado.";
     }
 }
 ?>
@@ -92,23 +70,16 @@ if (!isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha']) && isse
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Preços</title>
+    <title>Calculadora de PreÃ§os</title>
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/global.css">
-<<<<<<< HEAD
-    <link rel="stylesheet" href="../css/calculadora.css">
-=======
     <link rel="stylesheet" href="../css/calculadora.css?v=2">
->>>>>>> minhas-alteracoes
 </head>
 
 <body>
 
-<<<<<<< HEAD
-=======
     <?php require_once 'sidebar.php'; ?>
 
->>>>>>> minhas-alteracoes
     <main class="main">
 
         <div class="calc-titulo">
@@ -121,29 +92,6 @@ if (!isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha']) && isse
             <form method="post" id="form-calculadora">
 
                 <div class="calc-linhas" id="calc-linhas">
-<<<<<<< HEAD
-
-                    <div class="calc-linha">
-                        <select name="frutas[]" class="calc-select-fruta">
-                            <?php
-                            $sql = "SELECT * FROM fruta";
-                            $result = mysqli_query($conn, $sql);
-
-                            while ($fruta = mysqli_fetch_assoc($result)) {
-                                echo "<option value='" . $fruta['id_fruta'] . "'>"
-                                   . $fruta['nome']
-                                   . "</option>";
-                            }
-                            ?>
-                        </select>
-                        <input type="number" step="0.01" name="quantidade[]" placeholder="Qtd (kg)" required>
-                        <button type="button" class="calc-btn-remover" onclick="removerLinha(this)">&times;</button>
-                    </div>
-
-                </div>
-
-                <button type="button" class="calc-btn-add" onclick="adicionarLinha()">+ Adicionar item</button>
-=======
                     <?php for ($linha = 0; $linha < $numLinhas; $linha++): ?>
                     <div class="calc-linha">
                         <input type="search" name="frutas[]" list="frutas_disponiveis" class="calc-select-fruta-input pesquisa-datalist" placeholder="Pesquisar fruta..." value="<?= htmlspecialchars($_POST['frutas'][$linha] ?? '') ?>">
@@ -168,7 +116,6 @@ if (!isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha']) && isse
                 <?php if ($numLinhas < 8): ?>
                     <button type="submit" name="adicionar_linha" class="calc-btn-add">+ Adicionar item</button>
                 <?php endif; ?>
->>>>>>> minhas-alteracoes
 
                 <input type="submit" value="Calcular total">
 
@@ -181,8 +128,8 @@ if (!isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha']) && isse
                     <ul class="calc-lista-itens">
                         <?php foreach ($itens as $item): ?>
                             <li>
-                                <?= $item['nome'] ?> — <?= $item['qtd'] ?> kg
-                                × R$ <?= number_format($item['precokg'], 2, ',', '.') ?>
+                                <?= $item['nome'] ?> â€” <?= $item['qtd'] ?> kg
+                                Ã— R$ <?= number_format($item['precokg'], 2, ',', '.') ?>
                                 = <strong>R$ <?= number_format($item['subtotal'], 2, ',', '.') ?></strong>
                             </li>
                         <?php endforeach; ?>
@@ -197,42 +144,5 @@ if (!isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha']) && isse
 
     </main>
 
-<<<<<<< HEAD
-    <template id="template-linha">
-        <div class="calc-linha">
-            <select name="frutas[]" class="calc-select-fruta">
-                <?php
-                $sql = "SELECT * FROM fruta";
-                $result = mysqli_query($conn, $sql);
-
-                while ($fruta = mysqli_fetch_assoc($result)) {
-                    echo "<option value='" . $fruta['id_fruta'] . "'>"
-                       . $fruta['nome']
-                       . "</option>";
-                }
-                ?>
-            </select>
-            <input type="number" step="0.01" name="quantidade[]" placeholder="Qtd (kg)" required>
-            <button type="button" class="calc-btn-remover" onclick="removerLinha(this)">&times;</button>
-        </div>
-    </template>
-
-    <script>
-        function adicionarLinha() {
-            const template = document.getElementById('template-linha');
-            const clone = template.content.cloneNode(true);
-            document.getElementById('calc-linhas').appendChild(clone);
-        }
-
-        function removerLinha(botao) {
-            const linhas = document.querySelectorAll('#calc-linhas .calc-linha');
-            if (linhas.length > 1) {
-                botao.closest('.calc-linha').remove();
-            }
-        }
-    </script>
-
-=======
->>>>>>> minhas-alteracoes
 </body>
 </html>

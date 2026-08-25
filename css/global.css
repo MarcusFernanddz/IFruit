@@ -1,5 +1,5 @@
-/* =========================================================
-   global.css — Estilos compartilhados por todas as páginas
+﻿/* =========================================================
+   global.css â€” Estilos compartilhados por todas as pÃ¡ginas
    Inclua no <head> depois de sidebar.css:
    <link rel="stylesheet" href="sidebar.css">
    <link rel="stylesheet" href="global.css">
@@ -20,7 +20,7 @@ body {
     min-height: 100vh;
 }
 
-/* ÁREA PRINCIPAL */
+/* ÃREA PRINCIPAL */
 .main {
     margin-left: 250px;
     flex: 1;
@@ -28,7 +28,7 @@ body {
 }
 
 
-/* BARRA DE TÍTULO */
+/* BARRA DE TÃTULO */
 .bloco1fundo {
     width: 100%;
     height: 60px;
@@ -47,7 +47,7 @@ body {
     color: #0f3d2e;
 }
 
-/* NAVBAR INTERNA (abas de sub-página) */
+/* NAVBAR INTERNA (abas de sub-pÃ¡gina) */
 .navbar {
     display: flex;
     gap: 10px;
@@ -79,7 +79,7 @@ body {
     box-shadow: 0 0 10px rgba(13, 158, 64, 0.4);
 }
 
-/* BLOCO DE FORMULÁRIO */
+/* BLOCO DE FORMULÃRIO */
 .bloco2fundo {
     width: 100%;
     max-width: 800px;
@@ -97,7 +97,7 @@ body {
     margin-bottom: 20px;
 }
 
-/* FORMULÁRIO */
+/* FORMULÃRIO */
 .formulario {
     display: flex;
     flex-direction: column;
@@ -135,26 +135,6 @@ body {
     .bloco2fundo  { width: 100%; }
 }
 
-<<<<<<< HEAD
-.mensagem {
-    padding: 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.erro {
-    background-color: #ffd6d6;
-    color: #a10000;
-    border: 1px solid #ff6b6b;
-}
-
-.sucesso {
-    background-color: #d8ffe1;
-    color: #0f6b2f;
-    border: 1px solid #1ed760;
-=======
 .bloco2fundo .mensagem {
     display: block;
     width: min(100%, 520px);
@@ -192,5 +172,4 @@ body {
 .pesquisa-datalist {
     appearance: none;
     -webkit-appearance: none;
->>>>>>> minhas-alteracoes
 }

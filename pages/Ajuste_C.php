@@ -5,8 +5,6 @@ $mensagem     = "";
 $tipoMensagem = "";
 $clienteSelecionado = null;
 
-<<<<<<< HEAD
-=======
 /* ── EXCLUIR CLIENTE ── */
 if (isset($_POST['excluir'])) {
     $idExcluir = intval($_POST['id_comprador']);
@@ -22,7 +20,6 @@ if (isset($_POST['excluir'])) {
     }
 }
 
->>>>>>> minhas-alteracoes
 /* ── ETAPA 2: salvar edição ── */
 if (isset($_POST['salvar'])) {
 
@@ -94,13 +91,8 @@ if (isset($_POST['salvar'])) {
 
 /* ── ETAPA 1: carregar cliente para edição ── */
 if (isset($_POST['selecionar'])) {
-<<<<<<< HEAD
-    $id  = intval($_POST['id_comprador']);
-    $res = mysqli_query($conn, "SELECT * FROM comprador WHERE id_comprador=$id");
-=======
     $nome = mysqli_real_escape_string($conn, trim($_POST['cliente'] ?? ''));
     $res = mysqli_query($conn, "SELECT * FROM comprador WHERE nome='$nome' LIMIT 1");
->>>>>>> minhas-alteracoes
     $clienteSelecionado = mysqli_fetch_assoc($res);
 }
 
@@ -115,10 +107,7 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
     <title>iFruit - Ajuste de Cliente</title>
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/global.css">
-<<<<<<< HEAD
-=======
     <!-- Autocomplete styles are in css/global.css -->
->>>>>>> minhas-alteracoes
 </head>
 <body>
 
@@ -139,11 +128,7 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
 
     <div class="bloco2fundo">
         <?php if (!empty($mensagem)): ?>
-<<<<<<< HEAD
-            <div class="mensagem <?= $tipoMensagem === 'erro' ? 'erro' : 'sucesso' ?>" style="display:block; width:min(100%,520px); margin:0 auto 16px; padding:10px 14px; font-size:13px; border-radius:8px; text-align:center;">
-=======
             <div class="mensagem <?= $tipoMensagem === 'erro' ? 'erro' : 'sucesso' ?>">
->>>>>>> minhas-alteracoes
                 <?= htmlspecialchars($mensagem) ?>
             </div>
         <?php endif; ?>
@@ -153,25 +138,6 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
         <!-- FORM DE SELEÇÃO -->
         <?php if (!$clienteSelecionado): ?>
         <form class="formulario" action="" method="POST">
-<<<<<<< HEAD
-            <select name="id_comprador" required
-                    style="padding:12px; border-radius:6px; font-size:14px; outline:none; border:none;">
-                <option value="">-- Escolha um cliente --</option>
-                <?php while ($c = mysqli_fetch_assoc($listaClientes)): ?>
-                    <?php
-                        $cpfRaw = preg_replace('/\D/', '', $c['cpf']);
-                        $cpfFmt = strlen($cpfRaw) == 11
-                                ? substr($cpfRaw,0,3).'.'.substr($cpfRaw,3,3).'.'.substr($cpfRaw,6,3).'-'.substr($cpfRaw,9,2)
-                                : $c['cpf'];
-                    ?>
-                    <option value="<?= $c['id_comprador'] ?>">
-                        <?= htmlspecialchars($c['nome']) ?> — <?= $cpfFmt ?>
-                    </option>
-                <?php endwhile; ?>
-            </select>
-
-            <button type="submit" name="selecionar" style="width:200px;">
-=======
                  <input type="search" class="pesquisa-datalist" name="cliente" list="clientes_disponiveis" placeholder="Pesquisar cliente por nome ou CPF" required
                      style="padding:12px; border-radius:6px; font-size:14px; outline:none; border:1px solid #e6e6e6; width:100%; background:#fff;">
                  <datalist id="clientes_disponiveis">
@@ -187,7 +153,6 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
                 <?php endwhile; ?>
             </datalist>
             <button type="submit" name="selecionar" style="width:200px; margin-top:8px;">
->>>>>>> minhas-alteracoes
                 Carregar Cliente
             </button>
         </form>
@@ -233,12 +198,9 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
                 <button type="submit" name="salvar" style="width:200px;">
                     Salvar Alterações
                 </button>
-<<<<<<< HEAD
-=======
                 <button type="submit" name="excluir" style="width:160px; padding:12px; border:none; border-radius:6px; background:#c0392b; color:#fff; font-weight:bold; cursor:pointer;">
                     Excluir Cliente
                 </button>
->>>>>>> minhas-alteracoes
                 <a href="Ajuste_C.php">
                     <button type="button" style="width:160px; padding:12px; border:none; border-radius:6px; background:#888; color:#fff; font-weight:bold; cursor:pointer;">
                         Trocar Cliente
@@ -251,9 +213,5 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
     </div>
 
 </main>
-<<<<<<< HEAD
-=======
-
->>>>>>> minhas-alteracoes
 </body>
 </html>
