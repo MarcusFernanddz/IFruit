@@ -42,7 +42,7 @@ if (isset($_POST['cadastrar'])) {
 
     if (!validaCPF($cpf)) {
 
-        $mensagem = "CPF invÃ¡lido. Verifique os nÃºmeros digitados.";
+        $mensagem = "CPF inválido. Verifique os números digitados.";
         $tipoMensagem = "erro";
 
     } else {
@@ -56,7 +56,7 @@ if (isset($_POST['cadastrar'])) {
 
         if (mysqli_num_rows($verifica) > 0) {
 
-            $mensagem = "JÃ¡ existe um cliente cadastrado com este CPF.";
+            $mensagem = "Já existe um cliente cadastrado com este CPF.";
             $tipoMensagem = "erro";
 
         } else {
@@ -77,7 +77,7 @@ if (isset($_POST['cadastrar'])) {
                 }
             } catch (mysqli_sql_exception $e) {
                 if ($e->getCode() == 1062) {
-                    $mensagem = "NÃ£o foi possÃ­vel cadastrar: jÃ¡ existe um cliente com este CPF.";
+                    $mensagem = "Não foi possível cadastrar: já existe um cliente com este CPF.";
                 } else {
                     $mensagem = "Erro ao cadastrar cliente: " . $e->getMessage();
                 }
@@ -374,54 +374,7 @@ nav{
 
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-
-    <div class="logo-area">
-        <img 
-            class="logo-img"
-            src="https://presencial.ifgoiano.edu.br/pluginfile.php/1/theme_mb2nl/logo/1777469559/Logo-Horizontal-Moodle%20%281%29.png"
-            alt="Logo IF">
-    </div>
-
-    <div class="welcome">
-        Seja bem-vindo ao
-        <strong>iFruit</strong>
-    </div>
-
-    <nav>
-
-        <div class="nav-item active">
-            <a href="CadCliente.php">
-                <div class="label">Cadastros/Ajuste</div>
-                <div class="sublabel">Clientes e Frutas</div>
-            </a>
-        </div>
-
-        <div class="nav-item">
-            <a href="CadProd.php">
-                <div class="label">Venda</div>
-                <div class="sublabel">Realizar venda</div>
-            </a>
-        </div>
-
-        <div class="nav-item">
-            <a href="calculadora.php">
-                <div class="label">Calculadora</div>
-                <div class="sublabel">Teste de valores</div>
-            </a>
-        </div>
-
-        <div class="nav-item">
-            <a href="Ajuste_C.php">
-                <div class="label">HistÃ³rico</div>
-                <div class="sublabel">Vendas anteriores</div>
-            </a>
-        </div>
-
-    </nav>
-
-</aside>
+<?php $paginaAtiva = 'cadastros'; require_once 'sidebar.php'; ?>
 
 <!-- CONTEÃšDO -->
 <main class="main">

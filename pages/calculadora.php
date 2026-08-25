@@ -61,7 +61,7 @@ if (!isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha']) && isse
     }
 
     if (empty($itens)) {
-        $erro = "Nenhum item vÃ¡lido foi informado.";
+        $erro = "Nenhum item válido foi informado.";
     }
 }
 ?>
@@ -70,7 +70,7 @@ if (!isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha']) && isse
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de PreÃ§os</title>
+    <title>Calculadora de Preços</title>
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/calculadora.css?v=2">
@@ -128,8 +128,8 @@ if (!isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha']) && isse
                     <ul class="calc-lista-itens">
                         <?php foreach ($itens as $item): ?>
                             <li>
-                                <?= $item['nome'] ?> â€” <?= $item['qtd'] ?> kg
-                                Ã— R$ <?= number_format($item['precokg'], 2, ',', '.') ?>
+                                <?= $item['nome'] ?> - <?= $item['qtd'] ?> kg
+                                x R$ <?= number_format($item['precokg'], 2, ',', '.') ?>
                                 = <strong>R$ <?= number_format($item['subtotal'], 2, ',', '.') ?></strong>
                             </li>
                         <?php endforeach; ?>

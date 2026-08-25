@@ -166,10 +166,13 @@ body {
 /* (autocomplete and button helper styles were moved back to per-page inline styles to restore original look) */
 
 .pesquisa-datalist::-webkit-calendar-picker-indicator {
-    display: none;
+    display: none !important;
+    opacity: 0;
+    width: 0;
 }
 
 .pesquisa-datalist {
     appearance: none;
     -webkit-appearance: none;
+    background-image: none;
 }

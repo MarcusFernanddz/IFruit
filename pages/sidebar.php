@@ -55,7 +55,7 @@ $paginaAtiva = $paginaAtiva ?? '';
 
         <div class="nav-item <?= $paginaAtiva === 'historico'    ? 'active' : '' ?>">
             <a href="Historico.php">
-                <div class="label">HistÃ³rico</div>
+                <div class="label">Histórico</div>
                 <div class="sublabel">Vendas anteriores</div>
             </a>
         </div>

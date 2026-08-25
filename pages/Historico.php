@@ -67,11 +67,13 @@ if ($export === 'html' || $export === 'pdf') {
 <head>
   <meta charset="utf-8">
   <title>Histórico de Vendas</title>
-  <link rel="stylesheet" href="/IFruit/css/global.css">
+  <link rel="stylesheet" href="../css/sidebar.css">
+  <link rel="stylesheet" href="../css/global.css">
   <style>table{width:100%; border-collapse:collapse} td,th{padding:8px; border-bottom:1px solid #eee}</style>
 </head>
 <body>
-<div class="container">
+<?php $paginaAtiva = 'historico'; require_once 'sidebar.php'; ?>
+<main class="main">
   <h2>Histórico de Vendas</h2>
   <a href="Venda.php">Registrar nova venda</a>
   <div style="margin-top:12px; margin-bottom:12px; display:flex; gap:8px;">
@@ -186,6 +188,6 @@ if ($export === 'html' || $export === 'pdf') {
     }
   endif; ?>
 
-</div>
+</main>
 </body>
 </html>

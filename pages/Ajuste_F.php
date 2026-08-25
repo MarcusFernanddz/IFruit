@@ -11,7 +11,7 @@ if (isset($_POST['excluir'])) {
     if ($idExcluir > 0) {
         $delRes = mysqli_query($conn, "DELETE FROM fruta WHERE id_fruta=$idExcluir");
         if ($delRes) {
-            $mensagem = "Produto excluÃ­do com sucesso.";
+            $mensagem = "Produto excluído com sucesso.";
             $tipoMensagem = "sucesso";
         } else {
             $mensagem = "Erro ao excluir produto: " . mysqli_error($conn);
@@ -28,11 +28,11 @@ if (isset($_POST['salvar'])) {
     $preco = floatval(str_replace(',', '.', $_POST['precokg']));
 
     if ($nome === '') {
-        $mensagem     = "O nome do produto nÃ£o pode estar vazio.";
+        $mensagem     = "O nome do produto não pode estar vazio.";
         $tipoMensagem = "erro";
         $frutaSelecionada = ['id_fruta' => $id, 'nome' => $nome, 'precokg' => $_POST['precokg']];
     } elseif ($preco < 0) {
-        $mensagem     = "O preÃ§o nÃ£o pode ser negativo.";
+        $mensagem     = "O preço não pode ser negativo.";
         $tipoMensagem = "erro";
         $frutaSelecionada = ['id_fruta' => $id, 'nome' => $nome, 'precokg' => $_POST['precokg']];
     } else {
@@ -40,7 +40,7 @@ if (isset($_POST['salvar'])) {
         $verificaNome = mysqli_query($conn, "SELECT id_fruta FROM fruta WHERE LOWER(nome) = LOWER('$nomeEsc') AND id_fruta != $id LIMIT 1");
 
         if (mysqli_num_rows($verificaNome) > 0) {
-            $mensagem     = "JÃ¡ existe outro produto cadastrado com este nome.";
+            $mensagem     = "Já existe outro produto cadastrado com este nome.";
             $tipoMensagem = "erro";
             $frutaSelecionada = ['id_fruta' => $id, 'nome' => $nome, 'precokg' => $_POST['precokg']];
         } else {
@@ -51,7 +51,7 @@ if (isset($_POST['salvar'])) {
                 $tipoMensagem = "sucesso";
             } else {
                 if (strpos(mysqli_error($conn), 'Duplicate entry') !== false || strpos(mysqli_error($conn), 'nome_unique') !== false) {
-                    $mensagem = "NÃ£o foi possÃ­vel salvar: jÃ¡ existe outro produto com este nome.";
+                    $mensagem = "Não foi possível salvar: já existe outro produto com este nome.";
                 } else {
                     $mensagem     = "Erro ao atualizar: " . mysqli_error($conn);
                 }
@@ -140,7 +140,7 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
 
             <input type="number"
                    name="precokg"
-                   placeholder="PreÃ§o por kg (R$)"
+                   placeholder="Preço por kg (R$)"
                    value="<?= htmlspecialchars($frutaSelecionada['precokg']) ?>"
                    min="0"
                    step="0.05"
@@ -148,7 +148,7 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
 
             <div style="display:flex; gap:10px;">
                 <button type="submit" name="salvar" style="width:200px;">
-                    Salvar AlteraÃ§Ãµes
+                    Salvar Alterações
                 </button>
                 <button type="submit" name="excluir" style="width:160px; padding:12px; border:none; border-radius:6px; background:#c0392b; color:#fff; font-weight:bold; cursor:pointer;">
                     Excluir Produto

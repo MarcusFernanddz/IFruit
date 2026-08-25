@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $mensagem = "Informe o nome do produto.";
         $tipoMensagem = "erro";
     } elseif ($pk === '' || floatval(str_replace(',', '.', $pk)) < 0) {
-        $mensagem = "Informe um preÃ§o vÃ¡lido.";
+        $mensagem = "Informe um preço válido.";
         $tipoMensagem = "erro";
     } else {
         $nomeEsc = mysqli_real_escape_string($conn, $nome);
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $verificaNome = mysqli_query($conn, "SELECT id_fruta FROM fruta WHERE LOWER(nome) = LOWER('$nomeEsc') LIMIT 1");
 
         if (mysqli_num_rows($verificaNome) > 0) {
-            $mensagem = "JÃ¡ existe um produto cadastrado com este nome.";
+            $mensagem = "Já existe um produto cadastrado com este nome.";
             $tipoMensagem = "erro";
         } else {
             $sql = "INSERT INTO fruta(nome, precokg) VALUES ('$nomeEsc', '$pkEsc')";
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $tipoMensagem = "sucesso";
             } else {
                 if (strpos(mysqli_error($conn), 'Duplicate entry') !== false || strpos(mysqli_error($conn), 'nome_unique') !== false) {
-                    $mensagem = "NÃ£o foi possÃ­vel cadastrar: jÃ¡ existe um produto com este nome.";
+                    $mensagem = "Não foi possível cadastrar: já existe um produto com este nome.";
                 } else {
                     $mensagem = "Erro ao cadastrar produto: " . mysqli_error($conn);
                 }
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <form class="formulario" action="" method="POST">
             <input type="text"   name="produto" placeholder="Nome do Produto" required>
-            <input type="number" name="preco"   placeholder="PreÃ§o" min="0" step="0.05" required>
+            <input type="number" name="preco"   placeholder="Preço" min="0" step="0.05" required>
             <button type="submit" name="cadastrar">Cadastrar Produto</button>
         </form>
     </div>
