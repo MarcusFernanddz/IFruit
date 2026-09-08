@@ -126,6 +126,56 @@ body {
 
 .formulario button:hover { background: #18b84f; }
 
+/* Componentes compartilhados de formulários */
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.row-actions,
+.form-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.primary-button,
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.primary-button {
+    background: #1ed760;
+    color: #0f3d2e;
+}
+
+.primary-button:hover {
+    background: #18b84f;
+    transform: translateY(-1px);
+}
+
+.secondary-button {
+    background: #3a5f4c;
+    color: #fff;
+}
+
+.secondary-button:hover {
+    background: #2d4b3b;
+    transform: translateY(-1px);
+}
+
 /* RESPONSIVO */
 @media (max-width: 768px) {
     body          { flex-direction: column; }
@@ -133,6 +183,10 @@ body {
     .navbar       { flex-direction: column; }
     .navbar button{ width: 100%; }
     .bloco2fundo  { width: 100%; }
+    .row-actions,
+    .form-actions  { flex-direction: column; align-items: stretch; }
+    .secondary-button,
+    .primary-button { width: 100%; }
 }
 
 .bloco2fundo .mensagem {

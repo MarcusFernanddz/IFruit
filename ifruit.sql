@@ -39,7 +39,8 @@ CREATE TABLE `fruta` (
 CREATE TABLE `venda` (
   `id_venda`         int(11)     NOT NULL AUTO_INCREMENT,
   `id_administrador` int(11)     NOT NULL,
-  `id_comprador`     int(11)     NOT NULL,
+  `id_comprador`     int(11)     DEFAULT NULL,
+  `cliente_nome`     varchar(40) NOT NULL,
   `valortotal`       double      NOT NULL,
   `datavenda`        date        NOT NULL,
   `numrecib`         int(11)     NOT NULL,
@@ -53,7 +54,7 @@ CREATE TABLE `venda` (
 CREATE TABLE `itemvenda` (
   `id_itemvenda` int(11)     NOT NULL AUTO_INCREMENT,
   `id_venda`     int(11)     NOT NULL,
-  `id_fruta`     int(11)     NOT NULL,
+  `id_fruta`     int(11)     DEFAULT NULL,
   `nome`         varchar(40) NOT NULL,
   `peso`         float       NOT NULL,
   `preco`        float       NOT NULL,
@@ -64,10 +65,10 @@ CREATE TABLE `itemvenda` (
 
 ALTER TABLE `venda`
   ADD CONSTRAINT `venda_fk_administrador` FOREIGN KEY (`id_administrador`) REFERENCES `administrador` (`id_administrador`),
-  ADD CONSTRAINT `venda_fk_comprador`     FOREIGN KEY (`id_comprador`)     REFERENCES `comprador`     (`id_comprador`);
+  ADD CONSTRAINT `venda_fk_comprador`     FOREIGN KEY (`id_comprador`)     REFERENCES `comprador`     (`id_comprador`) ON DELETE SET NULL;
 
 ALTER TABLE `itemvenda`
   ADD CONSTRAINT `itemvenda_fk_venda` FOREIGN KEY (`id_venda`) REFERENCES `venda` (`id_venda`) ON DELETE CASCADE,
-  ADD CONSTRAINT `itemvenda_fk_fruta` FOREIGN KEY (`id_fruta`) REFERENCES `fruta` (`id_fruta`);
+  ADD CONSTRAINT `itemvenda_fk_fruta` FOREIGN KEY (`id_fruta`) REFERENCES `fruta` (`id_fruta`) ON DELETE SET NULL;
 
 COMMIT;

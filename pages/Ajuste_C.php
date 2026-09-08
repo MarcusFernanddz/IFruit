@@ -9,12 +9,14 @@ $clienteSelecionado = null;
 if (isset($_POST['excluir'])) {
     $idExcluir = intval($_POST['id_comprador']);
     if ($idExcluir > 0) {
-        $delRes = mysqli_query($conn, "DELETE FROM comprador WHERE id_comprador=$idExcluir");
-        if ($delRes) {
-            $mensagem = "Cliente excluído com sucesso.";
+        $stmtExcluir = mysqli_prepare($conn, "DELETE FROM comprador WHERE id_comprador = ?");
+        mysqli_stmt_bind_param($stmtExcluir, 'i', $idExcluir);
+        if (mysqli_stmt_execute($stmtExcluir)) {
+            $mensagem = "Cliente excluído com sucesso. O histórico de vendas foi preservado.";
             $tipoMensagem = "sucesso";
+            $clienteSelecionado = null;
         } else {
-            $mensagem = "Erro ao excluir cliente: " . mysqli_error($conn);
+            $mensagem = "Erro ao excluir cliente: " . mysqli_stmt_error($stmtExcluir);
             $tipoMensagem = "erro";
         }
     }

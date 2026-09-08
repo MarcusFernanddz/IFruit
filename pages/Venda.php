@@ -19,6 +19,21 @@ $numLinhas = isset($_POST['adicionar_linha']) ? min(8, $numLinhas + 1) : $numLin
 // flags para feedback após salvar
 $saved = false;
 $saved_total = 0.0;
+$saleDateInput = trim($_POST['datavenda'] ?? '');
+$saleDate = date('Y-m-d');
+if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $saleDateInput)) {
+  $dateParts = explode('/', $saleDateInput);
+  if (checkdate((int) $dateParts[1], (int) $dateParts[0], (int) $dateParts[2])) {
+    $saleDate = $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0];
+  }
+} elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $saleDateInput)) {
+  $dateParts = explode('-', $saleDateInput);
+  if (checkdate((int) $dateParts[1], (int) $dateParts[2], (int) $dateParts[0])) {
+    $saleDate = $saleDateInput;
+  }
+}
+$customPayment = trim($_POST['formapag_custom'] ?? '');
+$paymentMethod = $customPayment !== '' ? substr($customPayment, 0, 30) : ($_POST['formapag'] ?? 'Dinheiro');
 // Handle POST save (DB when available, CSV fallback otherwise)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) {
   $cliente_name = $_POST['cliente_name'] ?? null;
@@ -44,6 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
     }
   }
   $cliente_id = isset($_POST['cliente_id']) ? intval($_POST['cliente_id']) : 0;
+  $cliente_nome = trim($_POST['cliente_name'] ?? $_POST['cliente_search'] ?? '');
+  if ($hasClientes && $cliente_id > 0) {
+    $stmtCliente = mysqli_prepare($con, "SELECT nome FROM comprador WHERE id_comprador = ? LIMIT 1");
+    mysqli_stmt_bind_param($stmtCliente, 'i', $cliente_id);
+    mysqli_stmt_execute($stmtCliente);
+    $clienteRow = mysqli_fetch_assoc(mysqli_stmt_get_result($stmtCliente));
+    $cliente_nome = $clienteRow['nome'] ?? $cliente_nome;
+  }
   if (!$hasSales && $cliente_name === null && $cliente_id === 0) {
     $cliente_name = $_POST['cliente_name'] ?? null;
   }
@@ -146,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
           }
 
           $h = fopen($csvFile, 'a');
-          $now = date('Y-m-d H:i:s');
+          $now = $saleDate . ' ' . date('H:i:s');
           $clientField = $cliente_name ? $cliente_name : $cliente_id;
           fputcsv($h, [$nextId, $clientField, number_format($total,2,'.',''), $now, json_encode($itemsOut, JSON_UNESCAPED_UNICODE)]);
           fclose($h);
@@ -156,12 +179,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
 
         mysqli_begin_transaction($con);
         try {
-          $datavenda = date('Y-m-d');
+          $datavenda = $saleDate;
           $numrecib = mt_rand(100000, 9999999);
-          $formapag = $_POST['formapag'] ?? 'Dinheiro';
+          $formapag = $paymentMethod;
 
-          $stmt = mysqli_prepare($con, "INSERT INTO venda (id_administrador, id_comprador, valortotal, datavenda, numrecib, formapag) VALUES (?, ?, ?, ?, ?, ?)");
-          mysqli_stmt_bind_param($stmt, 'iidsis', $id_adm, $cliente_id, $total, $datavenda, $numrecib, $formapag);
+          $stmt = mysqli_prepare($con, "INSERT INTO venda (id_administrador, id_comprador, cliente_nome, valortotal, datavenda, numrecib, formapag) VALUES (?, ?, ?, ?, ?, ?, ?)");
+          mysqli_stmt_bind_param($stmt, 'iisdsis', $id_adm, $cliente_id, $cliente_nome, $total, $datavenda, $numrecib, $formapag);
           mysqli_stmt_execute($stmt);
           $sale_id = mysqli_insert_id($con);
 
@@ -222,7 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
       }
 
       $h = fopen($csvFile, 'a');
-      $now = date('Y-m-d H:i:s');
+      $now = $saleDate . ' ' . date('H:i:s');
       $clientField = $cliente_name ? $cliente_name : $cliente_id;
       fputcsv($h, [$nextId, $clientField, number_format($total,2,'.',''), $now, json_encode($itemsOut, JSON_UNESCAPED_UNICODE)]);
       fclose($h);
@@ -241,7 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
   <title>iFruit - Registrar Venda</title>
   <link rel="stylesheet" href="../css/sidebar.css">
   <link rel="stylesheet" href="../css/global.css">
-  <link rel="stylesheet" href="../css/venda.css">
+  <link rel="stylesheet" href="../css/venda.css?v=<?= filemtime(__DIR__ . '/../css/venda.css') ?>">
 </head>
 <body>
 
@@ -258,8 +281,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
     <?php if (!empty($saved)): ?><div class="mensagem sucesso">Venda salva com sucesso. Total: R$ <?= number_format($saved_total,2,',','.') ?></div><?php endif; ?>
 
     <p>Nova Venda</p>
-    <div class="header-info">Registre os dados do cliente, os produtos e o pagamento.</div>
-
     <form id="saleForm" method="POST" class="formulario sales-form">
       <?php if ($clientes): ?>
         <datalist id="clientes_disponiveis">
@@ -280,7 +301,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
       <div class="field-group">
         <?php if ($clientes): ?>
           <label for="cliente_search">Cliente</label>
-          <input id="cliente_search" list="clientes_disponiveis" type="search" name="cliente_search" class="pesquisa-datalist" placeholder="Pesquisar cliente por nome" required>
+          <input id="cliente_search" list="clientes_disponiveis" type="search" name="cliente_search" class="pesquisa-datalist" placeholder="Pesquisar cliente por nome" value="<?= htmlspecialchars($_POST['cliente_search'] ?? '') ?>" required>
           <input type="hidden" name="cliente_id" id="cliente_id_hidden">
         <?php else: ?>
           <label for="cliente_name">Cliente</label>
@@ -289,13 +310,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
       </div>
 
       <div class="field-group">
+        <label for="datavenda">Data da venda</label>
+        <input id="datavenda" type="text" name="datavenda" inputmode="numeric" placeholder="dd/mm/aaaa" value="<?= htmlspecialchars(date('d/m/Y', strtotime($saleDate))) ?>" required>
+      </div>
+
+      <div class="field-group payment-group">
         <label for="formapag">Forma de pagamento</label>
         <select id="formapag" name="formapag">
-          <option value="Dinheiro">Dinheiro</option>
-          <option value="Pix">Pix</option>
-          <option value="Cartão">Cartão</option>
-          <option value="Transferência">Transferência</option>
+          <option value="Dinheiro" <?= ($_POST['formapag'] ?? 'Dinheiro') === 'Dinheiro' ? 'selected' : '' ?>>Dinheiro</option>
+          <option value="Pix" <?= ($_POST['formapag'] ?? '') === 'Pix' ? 'selected' : '' ?>>Pix</option>
+          <option value="Cartão" <?= ($_POST['formapag'] ?? '') === 'Cartão' ? 'selected' : '' ?>>Cartão</option>
+          <option value="Transferência" <?= ($_POST['formapag'] ?? '') === 'Transferência' ? 'selected' : '' ?>>Transferência</option>
         </select>
+        <input id="formapag_custom" type="text" name="formapag_custom" maxlength="30" placeholder="Outra forma de pagamento (opcional)" value="<?= htmlspecialchars($customPayment) ?>">
       </div>
 
       <div id="items" class="sale-list">
@@ -310,18 +337,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
             <input type="number" name="preco_unit[]" step="0.01" class="preco_unit" placeholder="preço" value="<?= htmlspecialchars($_POST['preco_unit'][$linha] ?? '') ?>">
             <input type="number" name="quantidade[]" step="0.001" class="quantidade" placeholder="kg" value="<?= htmlspecialchars($_POST['quantidade'][$linha] ?? '1') ?>" min="0.001">
           <?php endif; ?>
+          <button type="button" class="remove-item" aria-label="Excluir item" title="Excluir item">&times;</button>
         </div>
         <?php endfor; ?>
       </div>
 
       <div class="row-actions">
-        <?php if ($numLinhas < 8): ?><button type="submit" name="adicionar_linha" class="secondary-button">Adicionar item</button><?php endif; ?>
+        <?php if ($numLinhas < 8): ?><button type="submit" name="adicionar_linha" formnovalidate class="sale-add-item">+ Adicionar item</button><?php endif; ?>
       </div>
 
       <input type="hidden" name="num_linhas" value="<?= $numLinhas ?>">
       <div class="form-actions">
         <button type="submit" class="primary-button">Salvar Venda</button>
-        <a href="Historico.php" class="secondary-button">Ver Histórico</a>
       </div>
     </form>
 
@@ -364,6 +391,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
       input.addEventListener('input', syncFruta);
       input.addEventListener('change', syncFruta);
       syncFruta();
+    });
+
+    const items = document.getElementById('items');
+    const lineCount = document.querySelector('input[name="num_linhas"]');
+    document.querySelectorAll('.remove-item').forEach(function (button) {
+      button.addEventListener('click', function () {
+        const rows = items.querySelectorAll('.sale-row');
+        const row = button.closest('.sale-row');
+        if (rows.length > 1) {
+          row.remove();
+        } else {
+          row.querySelectorAll('input').forEach(function (input) {
+            if (!input.classList.contains('quantidade')) input.value = '';
+          });
+        }
+        if (lineCount) lineCount.value = items.querySelectorAll('.sale-row').length;
+      });
     });
   });
 </script>

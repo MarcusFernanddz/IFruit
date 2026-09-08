@@ -1,10 +1,11 @@
 <?php
+
 require_once __DIR__ . '/../connect/conexao.php';
 
 
 /*
 |--------------------------------------------------------------------------
-| VERIFICA SE A TABELA EXISTE
+| FUNÇÃO: VERIFICA SE A TABELA EXISTE
 |--------------------------------------------------------------------------
 */
 
@@ -23,13 +24,22 @@ function table_exists($con, $name)
 
 /*
 |--------------------------------------------------------------------------
-| VERIFICA SE EXISTEM TABELAS DE VENDA
+| VERIFICA AS TABELAS NECESSÁRIAS
 |--------------------------------------------------------------------------
 */
 
 $hasSales =
     table_exists($con, 'venda') &&
     table_exists($con, 'itemvenda');
+
+$hasComprador =
+    table_exists($con, 'comprador');
+
+$hasFruta =
+    table_exists($con, 'fruta');
+
+$hasAdministrador =
+    table_exists($con, 'administrador');
 
 
 /*
@@ -45,105 +55,125 @@ $page = max(
 
 $perPage = 20;
 
-$offset = ($page - 1) * $perPage;
+$offset =
+    ($page - 1) * $perPage;
 
 
 /*
 |--------------------------------------------------------------------------
-| EXPORTAÇÃO
+| TOTAL DE VENDAS
 |--------------------------------------------------------------------------
 */
 
-$export = $_GET['export'] ?? '';
+$totalVendas = 0;
+
+if ($hasSales) {
+
+    $resCount = mysqli_query(
+        $con,
+        "SELECT COUNT(*) AS total FROM venda"
+    );
+
+    if ($resCount) {
+
+        $rowCount =
+            mysqli_fetch_assoc(
+                $resCount
+            );
+
+        $totalVendas =
+            intval(
+                $rowCount['total'] ?? 0
+            );
+    }
+}
 
 
-if ($export === 'html' || $export === 'pdf') {
+$totalPaginas =
+    max(
+        1,
+        (int) ceil(
+            $totalVendas / $perPage
+        )
+    );
+
+
+/*
+|--------------------------------------------------------------------------
+| EXPORTAÇÃO HTML / PDF
+|--------------------------------------------------------------------------
+*/
+
+$export =
+    $_GET['export'] ?? '';
+
+
+if (
+    $export === 'html' ||
+    $export === 'pdf'
+) {
+
+    $rows = [];
+
 
     if ($hasSales) {
 
-        $all = mysqli_query(
-            $con,
-            "
+        $sqlExport = "
+
             SELECT
-                v.id_venda AS id,
+
+                v.id_venda,
+
+                v.id_administrador,
+
                 v.id_comprador,
-                v.valortotal AS total,
-                v.datavenda AS created_at,
-                c.nome AS cliente
+
+                v.valortotal,
+
+                v.datavenda,
+
+                v.numrecib,
+
+                v.formapag,
+
+                v.cliente_nome AS cliente,
+
+                a.nome AS administrador
 
             FROM venda v
 
-            LEFT JOIN comprador c
-                ON c.id_comprador = v.id_comprador
+            LEFT JOIN administrador a
+                ON a.id_administrador =
+                   v.id_administrador
 
-            ORDER BY v.datavenda DESC
-            "
-        );
+            ORDER BY
 
-        $rows = [];
+                v.datavenda DESC,
+
+                v.id_venda DESC
+
+        ";
+
+
+        $all =
+            mysqli_query(
+                $con,
+                $sqlExport
+            );
+
 
         if ($all) {
 
-            while ($r = mysqli_fetch_assoc($all)) {
+            while (
+                $r =
+                mysqli_fetch_assoc($all)
+            ) {
 
                 $rows[] = $r;
             }
         }
-
-    } else {
-
-        $rows = [];
-
-        $csvFile =
-            __DIR__ . '/../data/sales.csv';
-
-
-        if (file_exists($csvFile)) {
-
-            $lines = file(
-                $csvFile,
-                FILE_IGNORE_NEW_LINES |
-                FILE_SKIP_EMPTY_LINES
-            );
-
-
-            foreach ($lines as $i => $ln) {
-
-                if ($i === 0) {
-                    continue;
-                }
-
-
-                $cols = str_getcsv($ln);
-
-
-                $rows[] = [
-
-                    'id' =>
-                        $cols[0] ?? '',
-
-                    'cliente' =>
-                        $cols[1] ?? '',
-
-                    'total' =>
-                        $cols[2] ?? 0,
-
-                    'created_at' =>
-                        $cols[3] ?? '',
-
-                    'items_json' =>
-                        $cols[4] ?? '[]'
-                ];
-            }
-        }
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | PÁGINA DE IMPRESSÃO
-    |--------------------------------------------------------------------------
-    */
 
     ?>
 
@@ -155,6 +185,11 @@ if ($export === 'html' || $export === 'pdf') {
 
         <meta charset="utf-8">
 
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+
         <title>
             Histórico de Vendas
         </title>
@@ -162,40 +197,98 @@ if ($export === 'html' || $export === 'pdf') {
 
         <style>
 
+            * {
+                box-sizing: border-box;
+            }
+
+
             body {
+
                 font-family:
                     Arial,
                     Helvetica,
                     sans-serif;
 
-                padding: 30px;
+                padding:
+                    30px;
 
-                color: #222;
+                color:
+                    #222;
+
+                background:
+                    #fff;
             }
 
 
             h2 {
-                margin-bottom: 20px;
+
+                margin-top:
+                    0;
+
+                margin-bottom:
+                    20px;
+
+                color:
+                    #0f3d2e;
             }
 
 
             table {
-                width: 100%;
-                border-collapse: collapse;
+
+                width:
+                    100%;
+
+                border-collapse:
+                    collapse;
             }
 
 
             th,
             td {
-                padding: 10px;
-                border: 1px solid #ddd;
-                text-align: left;
+
+                padding:
+                    10px;
+
+                border:
+                    1px solid #ddd;
+
+                text-align:
+                    left;
             }
 
 
             th {
-                background: #0f3d2e;
-                color: white;
+
+                background:
+                    #0f3d2e;
+
+                color:
+                    white;
+            }
+
+
+            tr:nth-child(even) {
+
+                background:
+                    #f7f7f7;
+            }
+
+
+            @media print {
+
+                body {
+
+                    padding:
+                        10px;
+                }
+
+
+                .nao-imprimir {
+
+                    display:
+                        none;
+                }
+
             }
 
         </style>
@@ -232,6 +325,18 @@ if ($export === 'html' || $export === 'pdf') {
                         Data
                     </th>
 
+                    <th>
+                        Forma de pagamento
+                    </th>
+
+                    <th>
+                        Recibo
+                    </th>
+
+                    <th>
+                        Administrador
+                    </th>
+
                 </tr>
 
             </thead>
@@ -239,50 +344,99 @@ if ($export === 'html' || $export === 'pdf') {
 
             <tbody>
 
-                <?php foreach ($rows as $s): ?>
+                <?php if (count($rows) > 0): ?>
+
+                    <?php foreach ($rows as $s): ?>
+
+                        <tr>
+
+                            <td>
+                                <?= htmlspecialchars(
+                                    $s['id_venda'] ?? ''
+                                ) ?>
+                            </td>
+
+
+                            <td>
+                                <?= htmlspecialchars(
+                                    $s['cliente']
+                                    ??
+                                    'Cliente não informado'
+                                ) ?>
+                            </td>
+
+
+                            <td>
+
+                                R$
+
+                                <?= number_format(
+                                    floatval(
+                                        $s['valortotal']
+                                        ?? 0
+                                    ),
+                                    2,
+                                    ',',
+                                    '.'
+                                ) ?>
+
+                            </td>
+
+
+                            <td>
+                                <?= htmlspecialchars(
+                                    $s['datavenda']
+                                    ?? ''
+                                ) ?>
+                            </td>
+
+
+                            <td>
+                                <?= htmlspecialchars(
+                                    $s['formapag']
+                                    ?? '-'
+                                ) ?>
+                            </td>
+
+
+                            <td>
+                                <?= htmlspecialchars(
+                                    $s['numrecib']
+                                    ?? '-'
+                                ) ?>
+                            </td>
+
+
+                            <td>
+                                <?= htmlspecialchars(
+                                    $s['administrador']
+                                    ?? '-'
+                                ) ?>
+                            </td>
+
+                        </tr>
+
+                    <?php endforeach; ?>
+
+                <?php else: ?>
 
                     <tr>
 
-                        <td>
-                            <?= htmlspecialchars(
-                                $s['id']
-                            ) ?>
-                        </td>
+                        <td
+                            colspan="7"
+                            style="
+                                text-align:center;
+                                padding:30px;
+                            "
+                        >
 
+                            Nenhuma venda encontrada.
 
-                        <td>
-                            <?= htmlspecialchars(
-                                $s['cliente']
-                                ?? 'Cliente não informado'
-                            ) ?>
-                        </td>
-
-
-                        <td>
-
-                            R$
-
-                            <?= number_format(
-                                floatval(
-                                    $s['total']
-                                ),
-                                2,
-                                ',',
-                                '.'
-                            ) ?>
-
-                        </td>
-
-
-                        <td>
-                            <?= htmlspecialchars(
-                                $s['created_at']
-                            ) ?>
                         </td>
 
                     </tr>
 
-                <?php endforeach; ?>
+                <?php endif; ?>
 
             </tbody>
 
@@ -294,7 +448,9 @@ if ($export === 'html' || $export === 'pdf') {
             <script>
 
                 window.onload = function () {
+
                     window.print();
+
                 };
 
             </script>
@@ -335,8 +491,6 @@ if ($export === 'html' || $export === 'pdf') {
     </title>
 
 
-    <!-- SIDEBAR -->
-
     <link
         rel="stylesheet"
         href="../css/sidebar.css"
@@ -345,30 +499,67 @@ if ($export === 'html' || $export === 'pdf') {
 
     <style>
 
+        /*
+        ============================================================
+        RESET
+        ============================================================
+        */
+
+        * {
+
+            box-sizing:
+                border-box;
+
+        }
+
 
         /*
         ============================================================
-        ÁREA PRINCIPAL
+        BODY
+        ============================================================
+        */
+
+        body {
+
+            margin:
+                0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                #f8f9fa;
+
+            color:
+                #333;
+
+            transition:
+                background .25s,
+                color .25s;
+        }
+
+
+        /*
+        ============================================================
+        CONTAINER PRINCIPAL
         ============================================================
         */
 
         .historico-container {
 
-            margin-left: 270px;
+            margin-left:
+                270px;
 
-            padding: 30px;
+            padding:
+                30px;
 
             width:
                 calc(100% - 270px);
 
             min-height:
                 100vh;
-
-            box-sizing:
-                border-box;
-
-            background:
-                #f8f9fa;
         }
 
 
@@ -383,17 +574,27 @@ if ($export === 'html' || $export === 'pdf') {
             display:
                 flex;
 
+            justify-content:
+                space-between;
+
             align-items:
                 center;
 
             margin-bottom:
                 20px;
+
+            gap:
+                20px;
+
+            flex-wrap:
+                wrap;
         }
 
 
         .historico-header h2 {
 
-            margin: 0;
+            margin:
+                0;
 
             font-size:
                 28px;
@@ -450,7 +651,7 @@ if ($export === 'html' || $export === 'pdf') {
                 bold;
 
             transition:
-                0.2s;
+                .2s;
         }
 
 
@@ -464,7 +665,7 @@ if ($export === 'html' || $export === 'pdf') {
 
         /*
         ============================================================
-        CAIXA DA TABELA
+        TABELA
         ============================================================
         */
 
@@ -478,18 +679,16 @@ if ($export === 'html' || $export === 'pdf') {
 
             box-shadow:
                 0 2px 8px
-                rgba(0, 0, 0, 0.08);
+                rgba(0, 0, 0, .08);
 
             overflow-x:
                 auto;
+
+            transition:
+                background .25s,
+                box-shadow .25s;
         }
 
-
-        /*
-        ============================================================
-        TABELA
-        ============================================================
-        */
 
         .tabela-vendas {
 
@@ -497,7 +696,7 @@ if ($export === 'html' || $export === 'pdf') {
                 100%;
 
             min-width:
-                700px;
+                950px;
 
             border-collapse:
                 collapse;
@@ -530,6 +729,10 @@ if ($export === 'html' || $export === 'pdf') {
 
             color:
                 #444;
+
+            transition:
+                color .25s,
+                border-color .25s;
         }
 
 
@@ -542,7 +745,7 @@ if ($export === 'html' || $export === 'pdf') {
 
         /*
         ============================================================
-        BOTÃO VER
+        BOTÃO VER - MODO CLARO
         ============================================================
         */
 
@@ -579,7 +782,7 @@ if ($export === 'html' || $export === 'pdf') {
                 pointer;
 
             transition:
-                0.2s;
+                .2s;
         }
 
 
@@ -587,6 +790,7 @@ if ($export === 'html' || $export === 'pdf') {
 
             background:
                 #237523;
+
         }
 
 
@@ -620,7 +824,7 @@ if ($export === 'html' || $export === 'pdf') {
                 100%;
 
             background:
-                rgba(0, 0, 0, 0.55);
+                rgba(0, 0, 0, .55);
 
             align-items:
                 center;
@@ -630,17 +834,8 @@ if ($export === 'html' || $export === 'pdf') {
 
             padding:
                 20px;
-
-            box-sizing:
-                border-box;
         }
 
-
-        /*
-        ============================================================
-        JANELA DO MODAL
-        ============================================================
-        */
 
         .modal-conteudo {
 
@@ -648,7 +843,7 @@ if ($export === 'html' || $export === 'pdf') {
                 100%;
 
             max-width:
-                850px;
+                950px;
 
             max-height:
                 90vh;
@@ -664,10 +859,14 @@ if ($export === 'html' || $export === 'pdf') {
 
             box-shadow:
                 0 10px 40px
-                rgba(0, 0, 0, 0.3);
+                rgba(0, 0, 0, .3);
 
             animation:
-                aparecer 0.2s ease;
+                aparecer .2s ease;
+
+            transition:
+                background .25s,
+                color .25s;
         }
 
 
@@ -679,8 +878,9 @@ if ($export === 'html' || $export === 'pdf') {
                     0;
 
                 transform:
-                    scale(0.95);
+                    scale(.95);
             }
+
 
             to {
 
@@ -690,6 +890,7 @@ if ($export === 'html' || $export === 'pdf') {
                 transform:
                     scale(1);
             }
+
         }
 
 
@@ -736,7 +937,7 @@ if ($export === 'html' || $export === 'pdf') {
 
         /*
         ============================================================
-        BOTÃO FECHAR
+        BOTÃO X
         ============================================================
         */
 
@@ -755,7 +956,7 @@ if ($export === 'html' || $export === 'pdf') {
                 50%;
 
             background:
-                rgba(255,255,255,0.2);
+                rgba(255,255,255,.2);
 
             color:
                 white;
@@ -774,19 +975,23 @@ if ($export === 'html' || $export === 'pdf') {
 
             justify-content:
                 center;
+
+            transition:
+                .2s;
         }
 
 
         .btn-fechar:hover {
 
             background:
-                rgba(255,255,255,0.35);
+                rgba(255,255,255,.35);
+
         }
 
 
         /*
         ============================================================
-        CORPO DO MODAL
+        CORPO MODAL
         ============================================================
         */
 
@@ -832,6 +1037,9 @@ if ($export === 'html' || $export === 'pdf') {
 
             border-radius:
                 6px;
+
+            transition:
+                background .25s;
         }
 
 
@@ -861,12 +1069,15 @@ if ($export === 'html' || $export === 'pdf') {
 
             color:
                 #333;
+
+            word-break:
+                break-word;
         }
 
 
         /*
         ============================================================
-        TÍTULO DOS PRODUTOS
+        PRODUTOS
         ============================================================
         */
 
@@ -882,12 +1093,6 @@ if ($export === 'html' || $export === 'pdf') {
                 18px;
         }
 
-
-        /*
-        ============================================================
-        TABELA DOS PRODUTOS
-        ============================================================
-        */
 
         .tabela-itens {
 
@@ -922,6 +1127,9 @@ if ($export === 'html' || $export === 'pdf') {
 
             border-bottom:
                 1px solid #eee;
+
+            color:
+                #444;
         }
 
 
@@ -934,36 +1142,77 @@ if ($export === 'html' || $export === 'pdf') {
 
         /*
         ============================================================
-        RODAPÉ DO MODAL
+        PAGINAÇÃO
         ============================================================
         */
 
-        .modal-footer {
+        .paginacao {
 
             display:
                 flex;
 
             justify-content:
-                flex-end;
+                center;
 
-            padding:
-                15px 25px;
+            align-items:
+                center;
 
-            border-top:
-                1px solid #eee;
+            gap:
+                8px;
+
+            margin-top:
+                25px;
+
+            flex-wrap:
+                wrap;
         }
 
 
-        /*
-        ============================================================
-        BOTÃO FECHAR
-        ============================================================
-        */
+        .paginacao a,
+        .paginacao span {
 
-        .btn-fechar-modal {
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            min-width:
+                38px;
+
+            height:
+                38px;
 
             padding:
-                10px 20px;
+                0 10px;
+
+            border-radius:
+                6px;
+
+            text-decoration:
+                none;
+
+            background:
+                white;
+
+            color:
+                #0f3d2e;
+
+            border:
+                1px solid #ddd;
+
+            font-weight:
+                bold;
+
+            transition:
+                .2s;
+        }
+
+
+        .paginacao .ativa {
 
             background:
                 #0f3d2e;
@@ -971,24 +1220,179 @@ if ($export === 'html' || $export === 'pdf') {
             color:
                 white;
 
-            border:
-                none;
-
-            border-radius:
-                6px;
-
-            cursor:
-                pointer;
-
-            font-weight:
-                bold;
+            border-color:
+                #0f3d2e;
         }
 
 
-        .btn-fechar-modal:hover {
+        /*
+        ============================================================
+        MODO ESCURO
+        ============================================================
+        */
+
+        body.dark-mode {
 
             background:
-                #237523;
+                #121212;
+
+            color:
+                #eee;
+        }
+
+
+        body.dark-mode .historico-header h2 {
+
+            color:
+                #fff;
+        }
+
+
+        body.dark-mode .tabela-box {
+
+            background:
+                #1e1e1e;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, .35);
+        }
+
+
+        body.dark-mode .tabela-vendas td {
+
+            color:
+                #ddd;
+
+            border-bottom-color:
+                #333;
+        }
+
+
+        body.dark-mode .tabela-vendas tbody tr:hover {
+
+            background:
+                #252525;
+        }
+
+
+        /*
+        ============================================================
+        BOTÃO VER NO MODO ESCURO
+        ============================================================
+        */
+
+        body.dark-mode .btn-ver {
+
+            background:
+                #16a816;
+
+            color:
+                #fff;
+        }
+
+
+        body.dark-mode .btn-ver:hover {
+
+            background:
+                #1fc51f;
+        }
+
+
+        /*
+        ============================================================
+        MODAL MODO ESCURO
+        ============================================================
+        */
+
+        body.dark-mode .modal-conteudo {
+
+            background:
+                #1e1e1e;
+
+            color:
+                #eee;
+        }
+
+
+        body.dark-mode .informacao {
+
+            background:
+                #252525;
+
+            border-left-color:
+                #16a816;
+        }
+
+
+        body.dark-mode .informacao-label {
+
+            color:
+                #aaa;
+        }
+
+
+        body.dark-mode .informacao-valor {
+
+            color:
+                #fff;
+        }
+
+
+        body.dark-mode .titulo-itens {
+
+            color:
+                #fff;
+        }
+
+
+        body.dark-mode .tabela-itens td {
+
+            color:
+                #ddd;
+
+            border-bottom-color:
+                #333;
+        }
+
+
+        body.dark-mode .tabela-itens tbody tr:hover {
+
+            background:
+                #252525;
+        }
+
+
+        /*
+        ============================================================
+        PAGINAÇÃO MODO ESCURO
+        ============================================================
+        */
+
+        body.dark-mode .paginacao a,
+        body.dark-mode .paginacao span {
+
+            background:
+                #1e1e1e;
+
+            color:
+                #fff;
+
+            border-color:
+                #444;
+        }
+
+
+        body.dark-mode .paginacao .ativa {
+
+            background:
+                #0f3d2e;
+
+            color:
+                #fff;
+
+            border-color:
+                #0f3d2e;
         }
 
 
@@ -1042,7 +1446,6 @@ if ($export === 'html' || $export === 'pdf') {
 
         }
 
-
     </style>
 
 </head>
@@ -1059,23 +1462,22 @@ if ($export === 'html' || $export === 'pdf') {
 |--------------------------------------------------------------------------
 */
 
-$paginaAtiva = 'historico';
+$paginaAtiva =
+    'historico';
 
 require_once 'sidebar.php';
 
 ?>
 
 
-<!--
-|--------------------------------------------------------------------------
-| CONTEÚDO PRINCIPAL
-|--------------------------------------------------------------------------
--->
-
 <div class="historico-container">
 
 
-    <!-- TÍTULO -->
+    <!--
+    ==================================================================
+    CABEÇALHO
+    ==================================================================
+    -->
 
     <div class="historico-header">
 
@@ -1086,7 +1488,11 @@ require_once 'sidebar.php';
     </div>
 
 
-    <!-- BOTÕES -->
+    <!--
+    ==================================================================
+    BOTÕES
+    ==================================================================
+    -->
 
     <div class="botoes-exportacao">
 
@@ -1111,9 +1517,9 @@ require_once 'sidebar.php';
 
 
     <!--
-    ============================================================
+    ==================================================================
     TABELA PRINCIPAL
-    ============================================================
+    ==================================================================
     -->
 
     <div class="tabela-box">
@@ -1141,6 +1547,14 @@ require_once 'sidebar.php';
                     </th>
 
                     <th>
+                        Pagamento
+                    </th>
+
+                    <th>
+                        Recibo
+                    </th>
+
+                    <th>
                         Ação
                     </th>
 
@@ -1151,13 +1565,12 @@ require_once 'sidebar.php';
 
             <tbody>
 
-
             <?php
 
             /*
-            ========================================================
-            BANCO DE DADOS
-            ========================================================
+            |--------------------------------------------------------------------------
+            | BUSCA VENDAS
+            |--------------------------------------------------------------------------
             */
 
             if ($hasSales) {
@@ -1167,26 +1580,38 @@ require_once 'sidebar.php';
 
                     SELECT
 
-                        v.id_venda AS id,
+                        v.id_venda,
+
+                        v.id_administrador,
 
                         v.id_comprador,
 
-                        v.valortotal AS total,
+                        v.valortotal,
 
-                        v.datavenda AS created_at,
+                        v.datavenda,
 
-                        c.nome AS cliente
+                        v.numrecib,
+
+                        v.formapag,
+
+                        v.cliente_nome AS cliente,
+
+                        a.nome AS administrador
 
                     FROM venda v
 
-                    LEFT JOIN comprador c
-                        ON c.id_comprador =
-                           v.id_comprador
+                    LEFT JOIN administrador a
+                        ON a.id_administrador =
+                           v.id_administrador
 
                     ORDER BY
-                        v.datavenda DESC
+
+                        v.datavenda DESC,
+
+                        v.id_venda DESC
 
                     LIMIT $perPage
+
                     OFFSET $offset
 
                 ";
@@ -1207,18 +1632,19 @@ require_once 'sidebar.php';
 
                     while (
                         $s =
-                        mysqli_fetch_assoc($res)
+                        mysqli_fetch_assoc(
+                            $res
+                        )
                     ) {
 
                         ?>
-
 
                         <tr>
 
                             <td>
 
                                 <?= htmlspecialchars(
-                                    $s['id']
+                                    $s['id_venda']
                                 ) ?>
 
                             </td>
@@ -1241,7 +1667,8 @@ require_once 'sidebar.php';
 
                                 <?= number_format(
                                     floatval(
-                                        $s['total']
+                                        $s['valortotal']
+                                        ?? 0
                                     ),
                                     2,
                                     ',',
@@ -1254,7 +1681,8 @@ require_once 'sidebar.php';
                             <td>
 
                                 <?= htmlspecialchars(
-                                    $s['created_at']
+                                    $s['datavenda']
+                                    ?? ''
                                 ) ?>
 
                             </td>
@@ -1262,17 +1690,30 @@ require_once 'sidebar.php';
 
                             <td>
 
-                                <!--
-                                BOTÃO VER
+                                <?= htmlspecialchars(
+                                    $s['formapag']
+                                    ?? '-'
+                                ) ?>
 
-                                Passa o ID da venda
-                                para o JavaScript.
-                                -->
+                            </td>
+
+
+                            <td>
+
+                                <?= htmlspecialchars(
+                                    $s['numrecib']
+                                    ?? '-'
+                                ) ?>
+
+                            </td>
+
+
+                            <td>
 
                                 <button
                                     type="button"
                                     class="btn-ver"
-                                    onclick="abrirVenda(<?= intval($s['id']) ?>)"
+                                    onclick="abrirVenda(<?= intval($s['id_venda']) ?>)"
                                 >
                                     Ver
                                 </button>
@@ -1280,7 +1721,6 @@ require_once 'sidebar.php';
                             </td>
 
                         </tr>
-
 
                         <?php
 
@@ -1291,11 +1731,10 @@ require_once 'sidebar.php';
 
                     ?>
 
-
                     <tr>
 
                         <td
-                            colspan="5"
+                            colspan="7"
                             style="
                                 text-align:center;
                                 padding:30px;
@@ -1308,205 +1747,40 @@ require_once 'sidebar.php';
 
                     </tr>
 
-
                     <?php
 
                 }
 
 
-            }
+            } else {
 
+                ?>
 
-            /*
-            ========================================================
-            CSV
-            ========================================================
-            */
+                <tr>
 
-            else {
+                    <td
+                        colspan="7"
+                        style="
+                            text-align:center;
+                            padding:30px;
+                        "
+                    >
 
+                        As tabelas
+                        <strong>venda</strong>
+                        e
+                        <strong>itemvenda</strong>
+                        não foram encontradas.
 
-                $rows = [];
+                    </td>
 
-                $csvFile =
-                    __DIR__ .
-                    '/../data/sales.csv';
+                </tr>
 
-
-                if (
-                    file_exists($csvFile)
-                ) {
-
-
-                    $lines =
-                        file(
-                            $csvFile,
-                            FILE_IGNORE_NEW_LINES |
-                            FILE_SKIP_EMPTY_LINES
-                        );
-
-
-                    foreach (
-                        $lines as $i => $ln
-                    ) {
-
-
-                        if ($i === 0) {
-
-                            continue;
-
-                        }
-
-
-                        $cols =
-                            str_getcsv($ln);
-
-
-                        $rows[] = [
-
-                            'id' =>
-                                $cols[0] ?? '',
-
-                            'cliente' =>
-                                $cols[1] ?? '',
-
-                            'total' =>
-                                $cols[2] ?? 0,
-
-                            'created_at' =>
-                                $cols[3] ?? '',
-
-                            'items_json' =>
-                                $cols[4] ?? '[]'
-
-                        ];
-
-                    }
-
-                }
-
-
-                /*
-                PAGINAÇÃO
-                */
-
-                $rows =
-                    array_slice(
-                        $rows,
-                        $offset,
-                        $perPage
-                    );
-
-
-                if (
-                    count($rows) > 0
-                ) {
-
-
-                    foreach (
-                        $rows as $s
-                    ) {
-
-                        ?>
-
-
-                        <tr>
-
-                            <td>
-
-                                <?= htmlspecialchars(
-                                    $s['id']
-                                ) ?>
-
-                            </td>
-
-
-                            <td>
-
-                                <?= htmlspecialchars(
-                                    $s['cliente']
-                                    ?:
-                                    'Cliente não informado'
-                                ) ?>
-
-                            </td>
-
-
-                            <td>
-
-                                R$
-
-                                <?= number_format(
-                                    floatval(
-                                        $s['total']
-                                    ),
-                                    2,
-                                    ',',
-                                    '.'
-                                ) ?>
-
-                            </td>
-
-
-                            <td>
-
-                                <?= htmlspecialchars(
-                                    $s['created_at']
-                                ) ?>
-
-                            </td>
-
-
-                            <td>
-
-                                <button
-                                    type="button"
-                                    class="btn-ver"
-                                    onclick="abrirVenda(<?= intval($s['id']) ?>)"
-                                >
-                                    Ver
-                                </button>
-
-                            </td>
-
-                        </tr>
-
-
-                        <?php
-
-                    }
-
-
-                } else {
-
-                    ?>
-
-
-                    <tr>
-
-                        <td
-                            colspan="5"
-                            style="
-                                text-align:center;
-                                padding:30px;
-                            "
-                        >
-
-                            Nenhuma venda encontrada.
-
-                        </td>
-
-                    </tr>
-
-
-                    <?php
-
-                }
+                <?php
 
             }
 
             ?>
-
 
             </tbody>
 
@@ -1515,12 +1789,68 @@ require_once 'sidebar.php';
     </div>
 
 
+    <!--
+    ==================================================================
+    PAGINAÇÃO
+    ==================================================================
+    -->
+
+    <?php if ($totalPaginas > 1): ?>
+
+        <div class="paginacao">
+
+            <?php if ($page > 1): ?>
+
+                <a
+                    href="?page=<?= $page - 1 ?>"
+                >
+                    ‹
+                </a>
+
+            <?php endif; ?>
+
+
+            <?php
+
+            for (
+                $i = 1;
+                $i <= $totalPaginas;
+                $i++
+            ):
+
+            ?>
+
+                <a
+                    href="?page=<?= $i ?>"
+                    class="<?= $i === $page ? 'ativa' : '' ?>"
+                >
+                    <?= $i ?>
+                </a>
+
+            <?php endfor; ?>
+
+
+            <?php if ($page < $totalPaginas): ?>
+
+                <a
+                    href="?page=<?= $page + 1 ?>"
+                >
+                    ›
+                </a>
+
+            <?php endif; ?>
+
+        </div>
+
+    <?php endif; ?>
+
+
 </div>
 
 
 <!--
 ==================================================================
-MODAL DA VENDA
+MODAL
 ==================================================================
 -->
 
@@ -1529,14 +1859,16 @@ MODAL DA VENDA
     class="modal"
 >
 
-
     <div class="modal-conteudo">
 
 
-        <!-- CABEÇALHO -->
+        <!--
+        ==============================================================
+        CABEÇALHO
+        ==============================================================
+        -->
 
         <div class="modal-header">
-
 
             <h3 id="modalTitulo">
 
@@ -1545,27 +1877,39 @@ MODAL DA VENDA
             </h3>
 
 
+            <!--
+            ==========================================================
+            ÚNICO BOTÃO PARA FECHAR
+            ==========================================================
+            -->
+
             <button
                 type="button"
                 class="btn-fechar"
                 onclick="fecharVenda()"
+                aria-label="Fechar"
             >
-                ×
-            </button>
 
+                ×
+
+            </button>
 
         </div>
 
 
-        <!-- CORPO -->
+        <!--
+        ==============================================================
+        CORPO
+        ==============================================================
+        -->
 
         <div class="modal-body">
 
 
-            <!-- INFORMAÇÕES -->
-
             <div class="informacoes-venda">
 
+
+                <!-- CLIENTE -->
 
                 <div class="informacao">
 
@@ -1586,6 +1930,8 @@ MODAL DA VENDA
                 </div>
 
 
+                <!-- DATA -->
+
                 <div class="informacao">
 
                     <span
@@ -1604,6 +1950,8 @@ MODAL DA VENDA
 
                 </div>
 
+
+                <!-- TOTAL -->
 
                 <div class="informacao">
 
@@ -1624,10 +1972,77 @@ MODAL DA VENDA
                 </div>
 
 
+                <!-- PAGAMENTO -->
+
+                <div class="informacao">
+
+                    <span
+                        class="informacao-label"
+                    >
+                        Forma de pagamento
+                    </span>
+
+
+                    <span
+                        class="informacao-valor"
+                        id="modalPagamento"
+                    >
+                        -
+                    </span>
+
+                </div>
+
+
+                <!-- RECIBO -->
+
+                <div class="informacao">
+
+                    <span
+                        class="informacao-label"
+                    >
+                        Número do recibo
+                    </span>
+
+
+                    <span
+                        class="informacao-valor"
+                        id="modalRecibo"
+                    >
+                        -
+                    </span>
+
+                </div>
+
+
+                <!-- ADMINISTRADOR -->
+
+                <div class="informacao">
+
+                    <span
+                        class="informacao-label"
+                    >
+                        Administrador
+                    </span>
+
+
+                    <span
+                        class="informacao-valor"
+                        id="modalAdministrador"
+                    >
+                        -
+                    </span>
+
+                </div>
+
+
             </div>
 
 
-            <!-- PRODUTOS -->
+            <!--
+            ==========================================================
+            PRODUTOS
+            ==========================================================
+            -->
 
             <h4 class="titulo-itens">
 
@@ -1644,7 +2059,6 @@ MODAL DA VENDA
 
                 <table class="tabela-itens">
 
-
                     <thead>
 
                         <tr>
@@ -1658,7 +2072,7 @@ MODAL DA VENDA
                             </th>
 
                             <th>
-                                Preço
+                                Preço / kg
                             </th>
 
                             <th>
@@ -1670,33 +2084,15 @@ MODAL DA VENDA
                     </thead>
 
 
-                    <tbody id="modalItens">
+                    <tbody
+                        id="modalItens"
+                    >
 
                     </tbody>
-
 
                 </table>
 
             </div>
-
-
-        </div>
-
-
-        <!-- RODAPÉ -->
-
-        <div class="modal-footer">
-
-
-            <button
-                type="button"
-                class="btn-fechar-modal"
-                onclick="fecharVenda()"
-            >
-
-                Fechar
-
-            </button>
 
 
         </div>
@@ -1711,11 +2107,8 @@ MODAL DA VENDA
 
 /*
 |--------------------------------------------------------------------------
-| DADOS DAS VENDAS
+| OBJETO QUE RECEBERÁ AS VENDAS DO PHP
 |--------------------------------------------------------------------------
-|
-| O PHP coloca aqui as vendas disponíveis.
-|
 */
 
 const vendas = {};
@@ -1723,7 +2116,7 @@ const vendas = {};
 
 /*
 |--------------------------------------------------------------------------
-| BUSCA OS DADOS DO BANCO
+| ENVIA OS DADOS DO PHP PARA O JAVASCRIPT
 |--------------------------------------------------------------------------
 */
 
@@ -1731,63 +2124,98 @@ const vendas = {};
 
 if ($hasSales) {
 
-    $todasVendas = mysqli_query(
-        $con,
-        "
-        SELECT
-            v.id_venda AS id,
-            v.id_comprador,
-            v.valortotal AS total,
-            v.datavenda AS created_at,
-            c.nome AS cliente
 
-        FROM venda v
+    $todasVendas =
+        mysqli_query(
+            $con,
 
-        LEFT JOIN comprador c
-            ON c.id_comprador =
-               v.id_comprador
+            "
 
-        ORDER BY
-            v.datavenda DESC
-        "
-    );
+            SELECT
+
+                v.id_venda,
+
+                v.id_administrador,
+
+                v.id_comprador,
+
+                v.valortotal,
+
+                v.datavenda,
+
+                v.numrecib,
+
+                v.formapag,
+
+                v.cliente_nome AS cliente,
+
+                a.nome AS administrador
+
+            FROM venda v
+
+            LEFT JOIN administrador a
+                ON a.id_administrador =
+                   v.id_administrador
+
+            ORDER BY
+
+                v.datavenda DESC,
+
+                v.id_venda DESC
+
+            "
+        );
 
 
     if ($todasVendas) {
 
+
         while (
             $venda =
-            mysqli_fetch_assoc($todasVendas)
+            mysqli_fetch_assoc(
+                $todasVendas
+            )
         ) {
 
 
             $idVenda =
                 intval(
-                    $venda['id']
+                    $venda['id_venda']
                 );
 
 
-            /*
-            Busca os itens
-            */
-
             $itensVenda =
                 mysqli_query(
+
                     $con,
+
                     "
+
                     SELECT
-                        iv.*,
-                        f.nome
+
+                        iv.id_itemvenda,
+
+                        iv.id_venda,
+
+                        iv.id_fruta,
+
+                        iv.nome AS nome_item,
+
+                        iv.peso,
+
+                        iv.preco
 
                     FROM itemvenda iv
 
-                    LEFT JOIN fruta f
-                        ON f.id_fruta =
-                           iv.id_fruta
-
                     WHERE
+
                         iv.id_venda =
                         $idVenda
+
+                    ORDER BY
+
+                        iv.id_itemvenda ASC
+
                     "
                 );
 
@@ -1797,6 +2225,7 @@ if ($hasSales) {
 
             if ($itensVenda) {
 
+
                 while (
                     $item =
                     mysqli_fetch_assoc(
@@ -1804,35 +2233,72 @@ if ($hasSales) {
                     )
                 ) {
 
+
+                    $nomeProduto =
+                        'Produto não informado';
+
+
+                    if (
+                        !empty(
+                            $item['nome_item']
+                        )
+                    ) {
+
+                        $nomeProduto =
+                            $item['nome_item'];
+
+                    } elseif (
+                        !empty(
+                            $item['nome_fruta']
+                        )
+                    ) {
+
+                        $nomeProduto =
+                            $item['nome_fruta'];
+                    }
+
+
+                    $peso =
+                        floatval(
+                            $item['peso']
+                            ?? 0
+                        );
+
+
+                    $preco =
+                        floatval(
+                            $item['preco']
+                            ?? 0
+                        );
+
+
+                    $subtotal =
+                        $peso * $preco;
+
+
                     $itens[] = [
 
+                        'id_fruta' =>
+                            intval(
+                                $item['id_fruta']
+                                ?? 0
+                            ),
+
                         'produto' =>
-                            $item['nome']
-                            ??
-                            'Produto não informado',
+                            $nomeProduto,
 
                         'quantidade' =>
-                            floatval(
-                                $item['peso']
-                                ??
-                                0
-                            ),
+                            $peso,
 
                         'preco' =>
-                            floatval(
-                                $item['preco']
-                                ??
-                                0
-                            ),
+                            $preco,
 
                         'subtotal' =>
-                            floatval(
-                                ($item['peso'] ?? 0)
-                                *
-                                ($item['preco'] ?? 0)
-                            )
+                            $subtotal
                     ];
+
                 }
+
             }
 
 
@@ -1848,161 +2314,33 @@ if ($hasSales) {
 
                 'total' =>
                     floatval(
-                        $venda['total']
+                        $venda['valortotal']
+                        ?? 0
                     ),
 
                 'data' =>
-                    $venda['created_at']
+                    $venda['datavenda']
                     ??
                     '',
+
+                'pagamento' =>
+                    $venda['formapag']
+                    ??
+                    '-',
+
+                'recibo' =>
+                    $venda['numrecib']
+                    ??
+                    '-',
+
+                'administrador' =>
+                    $venda['administrador']
+                    ??
+                    'Administrador não informado',
 
                 'itens' =>
                     $itens
             ];
-
-
-            ?>
-
-            vendas[<?= $idVenda ?>] =
-                <?= json_encode(
-                    $dadosVenda,
-                    JSON_UNESCAPED_UNICODE |
-                    JSON_UNESCAPED_SLASHES
-                ) ?>;
-
-            <?php
-
-        }
-    }
-
-} else {
-
-    /*
-    ================================================================
-    VENDA PELO CSV
-    ================================================================
-    */
-
-    $csvFile =
-        __DIR__ .
-        '/../data/sales.csv';
-
-
-    if (file_exists($csvFile)) {
-
-        $lines =
-            file(
-                $csvFile,
-                FILE_IGNORE_NEW_LINES |
-                FILE_SKIP_EMPTY_LINES
-            );
-
-
-        foreach (
-            $lines as $i => $ln
-        ) {
-
-
-            if ($i === 0) {
-
-                continue;
-
-            }
-
-
-            $cols =
-                str_getcsv($ln);
-
-
-            $idVenda =
-                intval(
-                    $cols[0] ?? 0
-                );
-
-
-            $itemsJson =
-                $cols[4] ?? '[]';
-
-
-            $itemsArr =
-                json_decode(
-                    $itemsJson,
-                    true
-                );
-
-
-            if (
-                !is_array($itemsArr)
-            ) {
-
-                $itemsArr = [];
-
-            }
-
-
-            $itens = [];
-
-
-            foreach (
-                $itemsArr as $item
-            ) {
-
-                $itens[] = [
-
-                    'produto' =>
-                        $item['fruta_id']
-                        ??
-                        'Produto',
-
-                    'quantidade' =>
-                        floatval(
-                            $item['quantidade']
-                            ??
-                            0
-                        ),
-
-                    'preco' =>
-                        floatval(
-                            $item['preco_unit']
-                            ??
-                            0
-                        ),
-
-                    'subtotal' =>
-                        floatval(
-                            $item['subtotal']
-                            ??
-                            0
-                        )
-                ];
-            }
-
-
-            $dadosVenda = [
-
-                'id' =>
-                    $idVenda,
-
-                'cliente' =>
-                    $cols[1]
-                    ??
-                    'Cliente não informado',
-
-                'total' =>
-                    floatval(
-                        $cols[2] ?? 0
-                    ),
-
-                'data' =>
-                    $cols[3]
-                    ??
-                    '',
-
-                'itens' =>
-                    $itens
-
-            ];
-
 
             ?>
 
@@ -2026,7 +2364,7 @@ if ($hasSales) {
 
 /*
 |--------------------------------------------------------------------------
-| ABRIR VENDA
+| FUNÇÃO: ABRIR VENDA
 |--------------------------------------------------------------------------
 */
 
@@ -2047,54 +2385,62 @@ function abrirVenda(id)
     }
 
 
-    /*
-    Título
-    */
-
     document.getElementById(
         'modalTitulo'
     ).textContent =
+
         'Detalhes da venda #' +
         venda.id;
 
 
-    /*
-    Cliente
-    */
-
     document.getElementById(
         'modalCliente'
     ).textContent =
+
         venda.cliente ||
         'Cliente não informado';
 
 
-    /*
-    Data
-    */
-
     document.getElementById(
         'modalData'
     ).textContent =
+
         venda.data ||
         '-';
 
 
-    /*
-    Total
-    */
-
     document.getElementById(
         'modalTotal'
     ).textContent =
+
         formatarMoeda(
             venda.total
         );
 
 
-    /*
-    Itens
-    */
+    document.getElementById(
+        'modalPagamento'
+    ).textContent =
+
+        venda.pagamento ||
+        '-';
+
+
+    document.getElementById(
+        'modalRecibo'
+    ).textContent =
+
+        venda.recibo ||
+        '-';
+
+
+    document.getElementById(
+        'modalAdministrador'
+    ).textContent =
+
+        venda.administrador ||
+        '-';
+
 
     const tabela =
         document.getElementById(
@@ -2121,6 +2467,18 @@ function abrirVenda(id)
                     );
 
 
+                const quantidade =
+                    Number(
+                        item.quantidade || 0
+                    ).toLocaleString(
+                        'pt-BR',
+                        {
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3
+                        }
+                    );
+
+
                 tr.innerHTML = `
 
                     <td>
@@ -2130,7 +2488,7 @@ function abrirVenda(id)
                     </td>
 
                     <td>
-                        ${item.quantidade}
+                        ${quantidade} kg
                     </td>
 
                     <td>
@@ -2184,7 +2542,9 @@ function abrirVenda(id)
 
 
     /*
-    Mostra o modal
+    |--------------------------------------------------------------------------
+    | MOSTRA MODAL
+    |--------------------------------------------------------------------------
     */
 
     document.getElementById(
@@ -2192,10 +2552,6 @@ function abrirVenda(id)
     ).style.display =
         'flex';
 
-
-    /*
-    Impede rolagem da página
-    */
 
     document.body.style.overflow =
         'hidden';
@@ -2205,7 +2561,7 @@ function abrirVenda(id)
 
 /*
 |--------------------------------------------------------------------------
-| FECHAR VENDA
+| FUNÇÃO: FECHAR VENDA
 |--------------------------------------------------------------------------
 */
 
@@ -2226,7 +2582,7 @@ function fecharVenda()
 
 /*
 |--------------------------------------------------------------------------
-| FECHAR CLICANDO FORA DA JANELA
+| FECHAR CLICANDO FORA
 |--------------------------------------------------------------------------
 */
 
@@ -2274,7 +2630,7 @@ document.addEventListener(
 
 /*
 |--------------------------------------------------------------------------
-| FORMATAR MOEDA
+| FORMATA MOEDA
 |--------------------------------------------------------------------------
 */
 
@@ -2296,7 +2652,7 @@ function formatarMoeda(valor)
 
 /*
 |--------------------------------------------------------------------------
-| EVITA HTML INJETADO NOS NOMES DOS PRODUTOS
+| EVITA HTML INJETADO
 |--------------------------------------------------------------------------
 */
 
@@ -2308,8 +2664,10 @@ function escaparHtml(texto)
             'div'
         );
 
+
     div.textContent =
         texto ?? '';
+
 
     return div.innerHTML;
 
