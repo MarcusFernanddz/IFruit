@@ -241,6 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
   <title>iFruit - Registrar Venda</title>
   <link rel="stylesheet" href="../css/sidebar.css">
   <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/venda.css">
 </head>
 <body>
 
@@ -256,54 +257,116 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
     <?php if (!empty($error)): ?><div class="mensagem erro"><?= htmlspecialchars($error) ?></div><?php endif; ?>
     <?php if (!empty($saved)): ?><div class="mensagem sucesso">Venda salva com sucesso. Total: R$ <?= number_format($saved_total,2,',','.') ?></div><?php endif; ?>
 
-    <form id="saleForm" method="POST" class="formulario">
+    <p>Nova Venda</p>
+    <div class="header-info">Registre os dados do cliente, os produtos e o pagamento.</div>
+
+    <form id="saleForm" method="POST" class="formulario sales-form">
       <?php if ($clientes): ?>
-        <label>Cliente</label>
-        <select name="cliente_id" required>
-          <option value="">-- Selecionar cliente --</option>
-          <?php while ($c = mysqli_fetch_assoc($clientes)): ?>
-            <option value="<?= $c['id_comprador'] ?>"><?= htmlspecialchars($c['nome']) ?></option>
+        <datalist id="clientes_disponiveis">
+          <?php mysqli_data_seek($clientes, 0); while ($c = mysqli_fetch_assoc($clientes)): ?>
+            <option value="<?= htmlspecialchars($c['nome']) ?>" data-id="<?= intval($c['id_comprador']) ?>"><?= htmlspecialchars($c['nome']) ?></option>
           <?php endwhile; ?>
-        </select>
-      <?php else: ?>
-        <label>Cliente</label>
-        <input type="text" name="cliente_name" placeholder="Nome do cliente" required>
+        </datalist>
       <?php endif; ?>
 
-      <div id="items">
+      <?php if ($frutas): ?>
+        <datalist id="frutas_disponiveis">
+          <?php mysqli_data_seek($frutas, 0); while ($f = mysqli_fetch_assoc($frutas)): ?>
+            <option value="<?= htmlspecialchars($f['nome']) ?>" data-id="<?= intval($f['id_fruta']) ?>"><?= htmlspecialchars($f['nome']) ?> (R$ <?= number_format($f['precokg'],2,',','.') ?> /kg)</option>
+          <?php endwhile; ?>
+        </datalist>
+      <?php endif; ?>
+
+      <div class="field-group">
+        <?php if ($clientes): ?>
+          <label for="cliente_search">Cliente</label>
+          <input id="cliente_search" list="clientes_disponiveis" type="search" name="cliente_search" class="pesquisa-datalist" placeholder="Pesquisar cliente por nome" required>
+          <input type="hidden" name="cliente_id" id="cliente_id_hidden">
+        <?php else: ?>
+          <label for="cliente_name">Cliente</label>
+          <input id="cliente_name" type="text" name="cliente_name" placeholder="Nome do cliente" required>
+        <?php endif; ?>
+      </div>
+
+      <div class="field-group">
+        <label for="formapag">Forma de pagamento</label>
+        <select id="formapag" name="formapag">
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Pix">Pix</option>
+          <option value="Cartão">Cartão</option>
+          <option value="Transferência">Transferência</option>
+        </select>
+      </div>
+
+      <div id="items" class="sale-list">
         <?php for ($linha = 0; $linha < $numLinhas; $linha++): ?>
-        <div class="sale-row" style="display:flex; gap:8px; align-items:center;">
+        <div class="sale-row">
           <?php if ($frutas): ?>
-            <select name="fruta_id[]" class="fruta">
-              <option value="">-- produto --</option>
-              <?php mysqli_data_seek($frutas,0); while ($f = mysqli_fetch_assoc($frutas)): ?>
-                <option value="<?= $f['id_fruta'] ?>" <?= (($_POST['fruta_id'][$linha] ?? '') == $f['id_fruta']) ? 'selected' : '' ?>><?= htmlspecialchars($f['nome']) ?> (R$ <?= number_format($f['precokg'],2,',','.') ?> /kg)</option>
-              <?php endwhile; ?>
-            </select>
-            <input type="number" name="quantidade[]" step="0.001" class="quantidade" placeholder="kg" value="<?= htmlspecialchars($_POST['quantidade'][$linha] ?? '1') ?>" min="0.001" style="width:120px">
+            <input type="search" name="fruta_search[]" list="frutas_disponiveis" class="fruta-search" placeholder="Pesquisar produto" value="<?= htmlspecialchars($_POST['fruta_search'][$linha] ?? '') ?>">
+            <input type="hidden" name="fruta_id[]" class="fruta-id-hidden" value="<?= htmlspecialchars($_POST['fruta_id'][$linha] ?? '') ?>">
+            <input type="number" name="quantidade[]" step="0.001" class="quantidade" placeholder="kg" value="<?= htmlspecialchars($_POST['quantidade'][$linha] ?? '1') ?>" min="0.001">
           <?php else: ?>
             <input type="text" name="fruta_name[]" class="fruta_input" placeholder="Produto (nome)" value="<?= htmlspecialchars($_POST['fruta_name'][$linha] ?? '') ?>">
-            <input type="number" name="preco_unit[]" step="0.01" class="preco_unit" placeholder="preço" value="<?= htmlspecialchars($_POST['preco_unit'][$linha] ?? '') ?>" style="width:140px">
-            <input type="number" name="quantidade[]" step="0.001" class="quantidade" placeholder="kg" value="<?= htmlspecialchars($_POST['quantidade'][$linha] ?? '1') ?>" min="0.001" style="width:120px">
+            <input type="number" name="preco_unit[]" step="0.01" class="preco_unit" placeholder="preço" value="<?= htmlspecialchars($_POST['preco_unit'][$linha] ?? '') ?>">
+            <input type="number" name="quantidade[]" step="0.001" class="quantidade" placeholder="kg" value="<?= htmlspecialchars($_POST['quantidade'][$linha] ?? '1') ?>" min="0.001">
           <?php endif; ?>
         </div>
         <?php endfor; ?>
       </div>
 
-      <div style="display:flex; gap:10px; align-items:center;">
-        <?php if ($numLinhas < 8): ?><button type="submit" name="adicionar_linha">Adicionar item</button><?php endif; ?>
+      <div class="row-actions">
+        <?php if ($numLinhas < 8): ?><button type="submit" name="adicionar_linha" class="secondary-button">Adicionar item</button><?php endif; ?>
       </div>
 
       <input type="hidden" name="num_linhas" value="<?= $numLinhas ?>">
-      <div style="margin-top:12px; display:flex; gap:10px;">
-        <button type="submit">Salvar Venda</button>
-        <a href="Historico.php"><button type="button">Ver Histórico</button></a>
+      <div class="form-actions">
+        <button type="submit" class="primary-button">Salvar Venda</button>
+        <a href="Historico.php" class="secondary-button">Ver Histórico</a>
       </div>
     </form>
 
   </div>
 
 </main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const clienteInput = document.getElementById('cliente_search');
+    const clienteHidden = document.getElementById('cliente_id_hidden');
+    if (clienteInput && clienteHidden) {
+      const clienteMap = {};
+      document.querySelectorAll('#clientes_disponiveis option').forEach(function (option) {
+        clienteMap[option.value.trim()] = option.dataset.id || '';
+      });
+
+      const syncCliente = function () {
+        const valor = clienteInput.value.trim();
+        clienteHidden.value = clienteMap[valor] || '';
+      };
+
+      clienteInput.addEventListener('input', syncCliente);
+      clienteInput.addEventListener('change', syncCliente);
+      syncCliente();
+    }
+
+    document.querySelectorAll('.fruta-search').forEach(function (input) {
+      const hidden = input.parentElement.querySelector('.fruta-id-hidden');
+      const frutaMap = {};
+      document.querySelectorAll('#frutas_disponiveis option').forEach(function (option) {
+        frutaMap[option.value.trim()] = option.dataset.id || '';
+      });
+
+      const syncFruta = function () {
+        const valor = input.value.trim();
+        if (hidden) hidden.value = frutaMap[valor] || '';
+      };
+
+      input.addEventListener('input', syncFruta);
+      input.addEventListener('change', syncFruta);
+      syncFruta();
+    });
+  });
+</script>
 
 </body>
 </html>
