@@ -1,0 +1,52 @@
+.cadastro-seletor {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    border: 1px solid #e6e6e6;
+    background: #fff;
+}
+
+.cadastro-carregar {
+    width: 200px;
+    margin-top: 8px;
+}
+
+.cadastro-acoes {
+    display: flex;
+    gap: 10px;
+}
+
+.cadastro-acoes button {
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.formulario button.cadastro-salvar {
+    width: 200px;
+}
+
+.formulario button.cadastro-excluir {
+    width: 160px;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #c0392b;
+    color: #fff;
+}
+
+.formulario button.cadastro-trocar {
+    width: 160px;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #888;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .cadastro-acoes {
+        flex-wrap: wrap;
+    }
+}

@@ -29,7 +29,8 @@ body {
 
 
 /* BARRA DE TÃTULO */
-.bloco1fundo {
+.bloco1fundo,
+.calc-titulo {
     width: 100%;
     height: 60px;
     background: #d9d9d9;
@@ -41,7 +42,8 @@ body {
     margin-bottom: 30px;
 }
 
-.bloco1fundo p {
+.bloco1fundo p,
+.calc-titulo p {
     font-size: 22px;
     font-weight: bold;
     color: #0f3d2e;
@@ -80,7 +82,8 @@ body {
 }
 
 /* BLOCO DE FORMULÃRIO */
-.bloco2fundo {
+.bloco2fundo,
+.calc-card {
     width: 100%;
     max-width: 800px;
     min-height: 340px;
@@ -91,7 +94,8 @@ body {
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.bloco2fundo p {
+.bloco2fundo p,
+.calc-card h2 {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
@@ -110,6 +114,23 @@ body {
     border-radius: 6px;
     outline: none;
     font-size: 14px;
+}
+
+.controle-formulario {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #0f3d2e;
+    font-size: 14px;
+    outline: none;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.controle-formulario:focus {
+    border-color: #1ed760;
+    box-shadow: 0 0 0 3px rgba(30, 215, 96, 0.2);
 }
 
 .formulario button {
@@ -214,10 +235,6 @@ body {
     color: #12693a;
     border-color: #4fd978;
 }
-
-/* Autocomplete shared styles used by Ajuste_C, Ajuste_F and Calculadora */
-.autocomplete { position: relative; }
-/* (autocomplete and button helper styles were moved back to per-page inline styles to restore original look) */
 
 .pesquisa-datalist::-webkit-calendar-picker-indicator {
     display: none !important;

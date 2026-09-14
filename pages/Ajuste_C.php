@@ -109,7 +109,7 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
     <title>iFruit - Ajuste de Cliente</title>
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/global.css">
-    <!-- Autocomplete styles are in css/global.css -->
+    <link rel="stylesheet" href="../css/cadastros.css">
 </head>
 <body>
 
@@ -140,8 +140,7 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
         <!-- FORM DE SELEÇÃO -->
         <?php if (!$clienteSelecionado): ?>
         <form class="formulario" action="" method="POST">
-                 <input type="search" class="pesquisa-datalist" name="cliente" list="clientes_disponiveis" placeholder="Pesquisar cliente por nome ou CPF" required
-                     style="padding:12px; border-radius:6px; font-size:14px; outline:none; border:1px solid #e6e6e6; width:100%; background:#fff;">
+                 <input type="search" class="pesquisa-datalist cadastro-seletor" name="cliente" list="clientes_disponiveis" placeholder="Pesquisar cliente por nome ou CPF" required>
                  <datalist id="clientes_disponiveis">
                 <?php
                 mysqli_data_seek($listaClientes, 0);
@@ -154,7 +153,7 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
                     <option value="<?= htmlspecialchars($c['nome']) ?>"><?= htmlspecialchars($cpfFmt) ?></option>
                 <?php endwhile; ?>
             </datalist>
-            <button type="submit" name="selecionar" style="width:200px; margin-top:8px;">
+            <button type="submit" name="selecionar" class="cadastro-carregar">
                 Carregar Cliente
             </button>
         </form>
@@ -196,15 +195,15 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
                    placeholder="Telefone ((00) 00000-0000)"
                    value="<?= htmlspecialchars($telFmt) ?>">
 
-            <div style="display:flex; gap:10px;">
-                <button type="submit" name="salvar" style="width:200px;">
+            <div class="cadastro-acoes">
+                <button type="submit" name="salvar" class="cadastro-salvar">
                     Salvar Alterações
                 </button>
-                <button type="submit" name="excluir" style="width:160px; padding:12px; border:none; border-radius:6px; background:#c0392b; color:#fff; font-weight:bold; cursor:pointer;">
+                <button type="submit" name="excluir" class="cadastro-excluir">
                     Excluir Cliente
                 </button>
                 <a href="Ajuste_C.php">
-                    <button type="button" style="width:160px; padding:12px; border:none; border-radius:6px; background:#888; color:#fff; font-weight:bold; cursor:pointer;">
+                    <button type="button" class="cadastro-trocar">
                         Trocar Cliente
                     </button>
                 </a>

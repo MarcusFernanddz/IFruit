@@ -14,6 +14,18 @@ $hasSales = table_exists($con, 'venda') && table_exists($con, 'itemvenda');
 
 $clientes = $hasClientes ? mysqli_query($con, "SELECT id_comprador, nome FROM comprador ORDER BY nome LIMIT 200") : null;
 $frutas = $hasFrutas ? mysqli_query($con, "SELECT id_fruta, nome, precokg FROM fruta ORDER BY nome LIMIT 500") : null;
+
+if (isset($_POST['remover_linha'])) {
+  $indiceRemover = max(0, (int) $_POST['remover_linha']);
+  foreach (['fruta_id', 'fruta_name', 'preco_unit', 'quantidade'] as $campo) {
+    if (isset($_POST[$campo]) && is_array($_POST[$campo])) {
+      unset($_POST[$campo][$indiceRemover]);
+      $_POST[$campo] = array_values($_POST[$campo]);
+    }
+  }
+  $_POST['num_linhas'] = max(1, count($_POST['quantidade'] ?? []));
+}
+
 $numLinhas = max(1, min(8, intval($_POST['num_linhas'] ?? $_GET['linhas'] ?? 1)));
 $numLinhas = isset($_POST['adicionar_linha']) ? min(8, $numLinhas + 1) : $numLinhas;
 // flags para feedback após salvar
@@ -35,7 +47,7 @@ if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $saleDateInput)) {
 $customPayment = trim($_POST['formapag_custom'] ?? '');
 $paymentMethod = $customPayment !== '' ? substr($customPayment, 0, 30) : ($_POST['formapag'] ?? 'Dinheiro');
 // Handle POST save (DB when available, CSV fallback otherwise)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha'])) {
   $cliente_name = $_POST['cliente_name'] ?? null;
   $items = [];
   if (isset($_POST['items'])) {
@@ -301,8 +313,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
       <div class="field-group">
         <?php if ($clientes): ?>
           <label for="cliente_search">Cliente</label>
-          <input id="cliente_search" list="clientes_disponiveis" type="search" name="cliente_search" class="pesquisa-datalist" placeholder="Pesquisar cliente por nome" value="<?= htmlspecialchars($_POST['cliente_search'] ?? '') ?>" required>
-          <input type="hidden" name="cliente_id" id="cliente_id_hidden">
+          <select id="cliente_search" name="cliente_id" class="pesquisa-datalist controle-formulario" required>
+            <option value="">Pesquisar cliente por nome</option>
+            <?php mysqli_data_seek($clientes, 0); while ($c = mysqli_fetch_assoc($clientes)): ?>
+              <option value="<?= intval($c['id_comprador']) ?>" <?= intval($_POST['cliente_id'] ?? 0) === intval($c['id_comprador']) ? 'selected' : '' ?>><?= htmlspecialchars($c['nome']) ?></option>
+            <?php endwhile; ?>
+          </select>
         <?php else: ?>
           <label for="cliente_name">Cliente</label>
           <input id="cliente_name" type="text" name="cliente_name" placeholder="Nome do cliente" required>
@@ -316,28 +332,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
 
       <div class="field-group payment-group">
         <label for="formapag">Forma de pagamento</label>
-        <select id="formapag" name="formapag">
+        <select id="formapag" name="formapag" class="controle-formulario">
           <option value="Dinheiro" <?= ($_POST['formapag'] ?? 'Dinheiro') === 'Dinheiro' ? 'selected' : '' ?>>Dinheiro</option>
           <option value="Pix" <?= ($_POST['formapag'] ?? '') === 'Pix' ? 'selected' : '' ?>>Pix</option>
           <option value="Cartão" <?= ($_POST['formapag'] ?? '') === 'Cartão' ? 'selected' : '' ?>>Cartão</option>
           <option value="Transferência" <?= ($_POST['formapag'] ?? '') === 'Transferência' ? 'selected' : '' ?>>Transferência</option>
         </select>
-        <input id="formapag_custom" type="text" name="formapag_custom" maxlength="30" placeholder="Outra forma de pagamento (opcional)" value="<?= htmlspecialchars($customPayment) ?>">
+        <input id="formapag_custom" type="text" name="formapag_custom" class="controle-formulario" maxlength="30" placeholder="Outra forma de pagamento (opcional)" value="<?= htmlspecialchars($customPayment) ?>">
       </div>
 
       <div id="items" class="sale-list">
         <?php for ($linha = 0; $linha < $numLinhas; $linha++): ?>
         <div class="sale-row">
           <?php if ($frutas): ?>
-            <input type="search" name="fruta_search[]" list="frutas_disponiveis" class="fruta-search" placeholder="Pesquisar produto" value="<?= htmlspecialchars($_POST['fruta_search'][$linha] ?? '') ?>">
-            <input type="hidden" name="fruta_id[]" class="fruta-id-hidden" value="<?= htmlspecialchars($_POST['fruta_id'][$linha] ?? '') ?>">
-            <input type="number" name="quantidade[]" step="0.001" class="quantidade" placeholder="kg" value="<?= htmlspecialchars($_POST['quantidade'][$linha] ?? '1') ?>" min="0.001">
+            <select name="fruta_id[]" class="fruta-search controle-formulario" required>
+              <option value="">Pesquisar produto</option>
+              <?php mysqli_data_seek($frutas, 0); while ($f = mysqli_fetch_assoc($frutas)): ?>
+                <option value="<?= intval($f['id_fruta']) ?>" <?= intval($_POST['fruta_id'][$linha] ?? 0) === intval($f['id_fruta']) ? 'selected' : '' ?>><?= htmlspecialchars($f['nome']) ?> - R$ <?= number_format($f['precokg'], 2, ',', '.') ?>/kg</option>
+              <?php endwhile; ?>
+            </select>
+            <input type="number" name="quantidade[]" step="0.001" class="quantidade controle-formulario" placeholder="kg" value="<?= htmlspecialchars($_POST['quantidade'][$linha] ?? '1') ?>" min="0.001">
           <?php else: ?>
-            <input type="text" name="fruta_name[]" class="fruta_input" placeholder="Produto (nome)" value="<?= htmlspecialchars($_POST['fruta_name'][$linha] ?? '') ?>">
-            <input type="number" name="preco_unit[]" step="0.01" class="preco_unit" placeholder="preço" value="<?= htmlspecialchars($_POST['preco_unit'][$linha] ?? '') ?>">
-            <input type="number" name="quantidade[]" step="0.001" class="quantidade" placeholder="kg" value="<?= htmlspecialchars($_POST['quantidade'][$linha] ?? '1') ?>" min="0.001">
+            <input type="text" name="fruta_name[]" class="fruta_input controle-formulario" placeholder="Produto (nome)" value="<?= htmlspecialchars($_POST['fruta_name'][$linha] ?? '') ?>">
+            <input type="number" name="preco_unit[]" step="0.01" class="preco_unit controle-formulario" placeholder="preço" value="<?= htmlspecialchars($_POST['preco_unit'][$linha] ?? '') ?>">
+            <input type="number" name="quantidade[]" step="0.001" class="quantidade controle-formulario" placeholder="kg" value="<?= htmlspecialchars($_POST['quantidade'][$linha] ?? '1') ?>" min="0.001">
           <?php endif; ?>
-          <button type="button" class="remove-item" aria-label="Excluir item" title="Excluir item">&times;</button>
+          <button type="submit" name="remover_linha" value="<?= $linha ?>" formnovalidate class="remove-item" aria-label="Excluir item" title="Excluir item">&times;</button>
         </div>
         <?php endfor; ?>
       </div>
@@ -355,62 +375,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha'])) 
   </div>
 
 </main>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const clienteInput = document.getElementById('cliente_search');
-    const clienteHidden = document.getElementById('cliente_id_hidden');
-    if (clienteInput && clienteHidden) {
-      const clienteMap = {};
-      document.querySelectorAll('#clientes_disponiveis option').forEach(function (option) {
-        clienteMap[option.value.trim()] = option.dataset.id || '';
-      });
-
-      const syncCliente = function () {
-        const valor = clienteInput.value.trim();
-        clienteHidden.value = clienteMap[valor] || '';
-      };
-
-      clienteInput.addEventListener('input', syncCliente);
-      clienteInput.addEventListener('change', syncCliente);
-      syncCliente();
-    }
-
-    document.querySelectorAll('.fruta-search').forEach(function (input) {
-      const hidden = input.parentElement.querySelector('.fruta-id-hidden');
-      const frutaMap = {};
-      document.querySelectorAll('#frutas_disponiveis option').forEach(function (option) {
-        frutaMap[option.value.trim()] = option.dataset.id || '';
-      });
-
-      const syncFruta = function () {
-        const valor = input.value.trim();
-        if (hidden) hidden.value = frutaMap[valor] || '';
-      };
-
-      input.addEventListener('input', syncFruta);
-      input.addEventListener('change', syncFruta);
-      syncFruta();
-    });
-
-    const items = document.getElementById('items');
-    const lineCount = document.querySelector('input[name="num_linhas"]');
-    document.querySelectorAll('.remove-item').forEach(function (button) {
-      button.addEventListener('click', function () {
-        const rows = items.querySelectorAll('.sale-row');
-        const row = button.closest('.sale-row');
-        if (rows.length > 1) {
-          row.remove();
-        } else {
-          row.querySelectorAll('input').forEach(function (input) {
-            if (!input.classList.contains('quantidade')) input.value = '';
-          });
-        }
-        if (lineCount) lineCount.value = items.querySelectorAll('.sale-row').length;
-      });
-    });
-  });
-</script>
 
 </body>
 </html>

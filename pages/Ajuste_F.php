@@ -9,12 +9,13 @@ $frutaSelecionada = null;
 if (isset($_POST['excluir'])) {
     $idExcluir = intval($_POST['id_fruta']);
     if ($idExcluir > 0) {
-        $delRes = mysqli_query($conn, "DELETE FROM fruta WHERE id_fruta=$idExcluir");
-        if ($delRes) {
+        $stmtExcluir = mysqli_prepare($conn, "DELETE FROM fruta WHERE id_fruta = ?");
+        mysqli_stmt_bind_param($stmtExcluir, 'i', $idExcluir);
+        if (mysqli_stmt_execute($stmtExcluir)) {
             $mensagem = "Produto excluído com sucesso.";
             $tipoMensagem = "sucesso";
         } else {
-            $mensagem = "Erro ao excluir produto: " . mysqli_error($conn);
+            $mensagem = "Erro ao excluir produto: " . mysqli_stmt_error($stmtExcluir);
             $tipoMensagem = "erro";
         }
     }
@@ -79,7 +80,7 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
     <title>iFruit - Ajuste de Produto</title>
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/global.css">
-    <!-- Autocomplete styles moved to css/global.css -->
+    <link rel="stylesheet" href="../css/cadastros.css">
 </head>
 <body>
 
@@ -110,8 +111,7 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
         <!-- FORM DE SELEÃ‡ÃƒO -->
         <?php if (!$frutaSelecionada): ?>
         <form class="formulario" action="" method="POST">
-                 <input type="search" class="pesquisa-datalist" name="produto" list="produtos_disponiveis" placeholder="Pesquisar produto por nome" required
-                     style="padding:12px; border-radius:6px; font-size:14px; outline:none; border:none;">
+                 <input type="search" class="pesquisa-datalist cadastro-seletor" name="produto" list="produtos_disponiveis" placeholder="Pesquisar produto por nome" required>
                  <datalist id="produtos_disponiveis">
                 <?php
                 mysqli_data_seek($listaFrutas, 0);
@@ -122,7 +122,7 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
                 <?php endwhile; ?>
             </datalist>
 
-            <button type="submit" name="selecionar" style="width:200px; margin-top:8px;">
+            <button type="submit" name="selecionar" class="cadastro-carregar">
                 Carregar Produto
             </button>
         </form>
@@ -146,15 +146,15 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
                    step="0.05"
                    required>
 
-            <div style="display:flex; gap:10px;">
-                <button type="submit" name="salvar" style="width:200px;">
+            <div class="cadastro-acoes">
+                <button type="submit" name="salvar" class="cadastro-salvar">
                     Salvar Alterações
                 </button>
-                <button type="submit" name="excluir" style="width:160px; padding:12px; border:none; border-radius:6px; background:#c0392b; color:#fff; font-weight:bold; cursor:pointer;">
+                <button type="submit" name="excluir" class="cadastro-excluir">
                     Excluir Produto
                 </button>
                 <a href="Ajuste_F.php">
-                    <button type="button" style="width:160px; padding:12px; border:none; border-radius:6px; background:#888; color:#fff; font-weight:bold; cursor:pointer;">
+                    <button type="button" class="cadastro-trocar">
                         Trocar Produto
                     </button>
                 </a>

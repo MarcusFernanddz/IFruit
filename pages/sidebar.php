@@ -62,35 +62,5 @@ $paginaAtiva = $paginaAtiva ?? '';
 
     </nav>
 
-    <button class="theme-toggle" type="button" aria-pressed="false">
-        <span class="theme-toggle-icon" aria-hidden="true">&#9790;</span>
-        <span class="theme-toggle-label">Modo escuro</span>
-    </button>
-
 </aside>
 
-<script>
-    (function () {
-        const toggle = document.querySelector('.theme-toggle');
-        const savedTheme = localStorage.getItem('ifruit-theme');
-
-        function setTheme(isDark) {
-            document.body.classList.toggle('dark-mode', isDark);
-            toggle.setAttribute('aria-pressed', String(isDark));
-            toggle.querySelector('.theme-toggle-label').textContent = isDark
-                ? 'Modo claro'
-                : 'Modo escuro';
-            toggle.querySelector('.theme-toggle-icon').innerHTML = isDark
-                ? '&#9728;'
-                : '&#9790;';
-        }
-
-        setTheme(savedTheme === 'dark');
-
-        toggle.addEventListener('click', function () {
-            const isDark = !document.body.classList.contains('dark-mode');
-            setTheme(isDark);
-            localStorage.setItem('ifruit-theme', isDark ? 'dark' : 'light');
-        });
-    }());
-</script>

@@ -9,33 +9,12 @@
   display: block;
 }
 
-.sales-form select,
-.sales-form input,
-.pesquisa-datalist {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #0f3d2e;
-  font-size: 14px;
-  outline: none;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
 .payment-group input {
   width: min(100%, 280px);
   margin-top: 4px;
   padding: 8px 10px;
   font-size: 12px;
   opacity: 0.86;
-}
-
-.sales-form select:focus,
-.sales-form input:focus,
-.pesquisa-datalist:focus {
-  border-color: #1ed760;
-  box-shadow: 0 0 0 3px rgba(30, 215, 96, 0.2);
 }
 
 .sale-list {
