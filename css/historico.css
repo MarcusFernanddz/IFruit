@@ -1,0 +1,202 @@
+.historico-container {
+    margin-left: 270px;
+    padding: 30px;
+    width: calc(100% - 270px);
+    min-height: 100vh;
+}
+
+.historico-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.historico-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.botoes-exportacao {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-html,
+.btn-pdf,
+.btn-ver {
+    display: inline-block;
+    padding: 9px 14px;
+    border: 0;
+    border-radius: 6px;
+    background: #0f3d2e;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.tabela-box {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    overflow-x: auto;
+}
+
+.tabela-vendas,
+.tabela-itens {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+}
+
+.tabela-vendas th,
+.tabela-itens th {
+    padding: 14px;
+    background: #0f3d2e;
+    color: #fff;
+    text-align: left;
+}
+
+.tabela-vendas td,
+.tabela-itens td {
+    padding: 14px;
+    border-bottom: 1px solid #eee;
+    color: #444;
+}
+
+.tabela-vazia {
+    text-align: center;
+    padding: 30px !important;
+}
+
+.paginacao {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 25px;
+}
+
+.paginacao a {
+    min-width: 38px;
+    padding: 9px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+    text-decoration: none;
+    color: #0f3d2e;
+    background: #fff;
+}
+
+.paginacao .ativa {
+    color: #fff;
+    background: #0f3d2e;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, .55);
+}
+
+.modal:target {
+    display: flex;
+}
+
+.modal-conteudo {
+    width: 100%;
+    max-width: 950px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    background: #0f3d2e;
+    color: #fff;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.btn-fechar {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .2);
+    color: #fff;
+    font-size: 22px;
+    text-decoration: none;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.informacoes-venda {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.informacao {
+    padding: 15px;
+    background: #f1f8f1;
+    border-left: 4px solid #2d8f2d;
+    border-radius: 6px;
+}
+
+.informacao-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 13px;
+    color: #777;
+}
+
+.informacao-valor {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    word-break: break-word;
+}
+
+.titulo-itens {
+    margin: 0 0 15px;
+    color: #333;
+    font-size: 18px;
+}
+
+@media (max-width: 768px) {
+    .historico-container {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .informacoes-venda {
+        grid-template-columns: 1fr;
+    }
+
+    .modal {
+        padding: 10px;
+    }
+}

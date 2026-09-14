@@ -1,0 +1,101 @@
+.sales-form {
+  gap: 18px;
+}
+
+.sales-form label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #dff9e8;
+  display: block;
+}
+
+.payment-group input {
+  width: min(100%, 280px);
+  margin-top: 4px;
+  padding: 8px 10px;
+  font-size: 12px;
+  opacity: 0.86;
+}
+
+.sale-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sale-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 14px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sale-row .fruta,
+.sale-row .fruta_input,
+.sale-row .fruta-search {
+  flex: 2 1 220px;
+  min-width: 180px;
+}
+
+.sale-row .quantidade,
+.sale-row .preco_unit {
+  flex: 1 1 120px;
+  min-width: 110px;
+}
+
+.sales-form .remove-item {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sales-form .remove-item:hover {
+  background: #ff6b6b;
+}
+
+.sales-form .sale-add-item {
+  align-self: flex-start;
+  width: auto;
+  min-height: auto;
+  padding: 9px 16px;
+  border: 1px dashed #1ed760;
+  border-radius: 6px;
+  background: transparent;
+  color: #1ed760;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sales-form .sale-add-item:hover {
+  background: rgba(30, 215, 96, 0.12);
+}
+
+.header-info {
+  color: #d7efe1;
+  font-size: 14px;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .sale-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+}

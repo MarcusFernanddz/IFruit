@@ -1,11 +1,27 @@
-<?php
+﻿<?php
 include __DIR__ . '/../connect/conexao.php';
 
 $mensagem     = "";
 $tipoMensagem = "";
 $frutaSelecionada = null;
 
-/* ── ETAPA 2: salvar edição ── */
+/* Excluir produto */
+if (isset($_POST['excluir'])) {
+    $idExcluir = intval($_POST['id_fruta']);
+    if ($idExcluir > 0) {
+        $stmtExcluir = mysqli_prepare($conn, "DELETE FROM fruta WHERE id_fruta = ?");
+        mysqli_stmt_bind_param($stmtExcluir, 'i', $idExcluir);
+        if (mysqli_stmt_execute($stmtExcluir)) {
+            $mensagem = "Produto excluído com sucesso.";
+            $tipoMensagem = "sucesso";
+        } else {
+            $mensagem = "Erro ao excluir produto: " . mysqli_stmt_error($stmtExcluir);
+            $tipoMensagem = "erro";
+        }
+    }
+}
+
+/* Salvar edicao */
 if (isset($_POST['salvar'])) {
 
     $id    = intval($_POST['id_fruta']);
@@ -46,14 +62,14 @@ if (isset($_POST['salvar'])) {
     }
 }
 
-/* ── ETAPA 1: carregar fruta para edição ── */
+/* Carregar fruta para edicao */
 if (isset($_POST['selecionar'])) {
-    $id  = intval($_POST['id_fruta']);
-    $res = mysqli_query($conn, "SELECT * FROM fruta WHERE id_fruta=$id");
+    $nome = mysqli_real_escape_string($conn, trim($_POST['produto'] ?? ''));
+    $res = mysqli_query($conn, "SELECT * FROM fruta WHERE nome='$nome' LIMIT 1");
     $frutaSelecionada = mysqli_fetch_assoc($res);
 }
 
-/* ── lista de frutas para o select ── */
+/* Lista de frutas para o seletor */
 $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta ORDER BY nome");
 ?>
 <!DOCTYPE html>
@@ -64,6 +80,7 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
     <title>iFruit - Ajuste de Produto</title>
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/cadastros.css">
 </head>
 <body>
 
@@ -84,33 +101,33 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
 
     <div class="bloco2fundo">
         <?php if (!empty($mensagem)): ?>
-            <div class="mensagem <?= $tipoMensagem === 'erro' ? 'erro' : 'sucesso' ?>" style="display:block; width:min(100%,520px); margin:0 auto 16px; padding:10px 14px; font-size:13px; border-radius:8px; text-align:center;">
+            <div class="mensagem <?= $tipoMensagem === 'erro' ? 'erro' : 'sucesso' ?>">
                 <?= htmlspecialchars($mensagem) ?>
             </div>
         <?php endif; ?>
 
         <p><?= $frutaSelecionada ? 'Editar Produto' : 'Selecionar Produto' ?></p>
 
-        <!-- FORM DE SELEÇÃO -->
+        <!-- FORM DE SELEÃ‡ÃƒO -->
         <?php if (!$frutaSelecionada): ?>
         <form class="formulario" action="" method="POST">
-            <select name="id_fruta" required
-                    style="padding:12px; border-radius:6px; font-size:14px; outline:none; border:none;">
-                <option value="">-- Escolha um produto --</option>
-                <?php while ($f = mysqli_fetch_assoc($listaFrutas)): ?>
-                    <?php $preco = number_format($f['precokg'], 2, ',', '.'); ?>
-                    <option value="<?= $f['id_fruta'] ?>">
-                        <?= htmlspecialchars($f['nome']) ?> — R$ <?= $preco ?>/kg
-                    </option>
+                 <input type="search" class="pesquisa-datalist cadastro-seletor" name="produto" list="produtos_disponiveis" placeholder="Pesquisar produto por nome" required>
+                 <datalist id="produtos_disponiveis">
+                <?php
+                mysqli_data_seek($listaFrutas, 0);
+                while ($f = mysqli_fetch_assoc($listaFrutas)):
+                    $preco = number_format($f['precokg'], 2, ',', '.');
+                ?>
+                    <option value="<?= htmlspecialchars($f['nome']) ?>">R$ <?= $preco ?>/kg</option>
                 <?php endwhile; ?>
-            </select>
+            </datalist>
 
-            <button type="submit" name="selecionar" style="width:200px;">
+            <button type="submit" name="selecionar" class="cadastro-carregar">
                 Carregar Produto
             </button>
         </form>
 
-        <!-- FORM DE EDIÇÃO -->
+        <!-- FORM DE EDIÃ‡ÃƒO -->
         <?php else: ?>
         <form class="formulario" action="" method="POST">
             <input type="hidden" name="id_fruta" value="<?= $frutaSelecionada['id_fruta'] ?>">
@@ -129,12 +146,15 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
                    step="0.05"
                    required>
 
-            <div style="display:flex; gap:10px;">
-                <button type="submit" name="salvar" style="width:200px;">
+            <div class="cadastro-acoes">
+                <button type="submit" name="salvar" class="cadastro-salvar">
                     Salvar Alterações
                 </button>
+                <button type="submit" name="excluir" class="cadastro-excluir">
+                    Excluir Produto
+                </button>
                 <a href="Ajuste_F.php">
-                    <button type="button" style="width:160px; padding:12px; border:none; border-radius:6px; background:#888; color:#fff; font-weight:bold; cursor:pointer;">
+                    <button type="button" class="cadastro-trocar">
                         Trocar Produto
                     </button>
                 </a>
@@ -145,5 +165,6 @@ $listaFrutas = mysqli_query($conn, "SELECT id_fruta, nome, precokg FROM fruta OR
     </div>
 
 </main>
+
 </body>
 </html>

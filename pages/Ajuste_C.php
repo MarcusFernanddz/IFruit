@@ -5,6 +5,23 @@ $mensagem     = "";
 $tipoMensagem = "";
 $clienteSelecionado = null;
 
+/* ── EXCLUIR CLIENTE ── */
+if (isset($_POST['excluir'])) {
+    $idExcluir = intval($_POST['id_comprador']);
+    if ($idExcluir > 0) {
+        $stmtExcluir = mysqli_prepare($conn, "DELETE FROM comprador WHERE id_comprador = ?");
+        mysqli_stmt_bind_param($stmtExcluir, 'i', $idExcluir);
+        if (mysqli_stmt_execute($stmtExcluir)) {
+            $mensagem = "Cliente excluído com sucesso. O histórico de vendas foi preservado.";
+            $tipoMensagem = "sucesso";
+            $clienteSelecionado = null;
+        } else {
+            $mensagem = "Erro ao excluir cliente: " . mysqli_stmt_error($stmtExcluir);
+            $tipoMensagem = "erro";
+        }
+    }
+}
+
 /* ── ETAPA 2: salvar edição ── */
 if (isset($_POST['salvar'])) {
 
@@ -76,8 +93,8 @@ if (isset($_POST['salvar'])) {
 
 /* ── ETAPA 1: carregar cliente para edição ── */
 if (isset($_POST['selecionar'])) {
-    $id  = intval($_POST['id_comprador']);
-    $res = mysqli_query($conn, "SELECT * FROM comprador WHERE id_comprador=$id");
+    $nome = mysqli_real_escape_string($conn, trim($_POST['cliente'] ?? ''));
+    $res = mysqli_query($conn, "SELECT * FROM comprador WHERE nome='$nome' LIMIT 1");
     $clienteSelecionado = mysqli_fetch_assoc($res);
 }
 
@@ -92,6 +109,7 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
     <title>iFruit - Ajuste de Cliente</title>
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/cadastros.css">
 </head>
 <body>
 
@@ -112,7 +130,7 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
 
     <div class="bloco2fundo">
         <?php if (!empty($mensagem)): ?>
-            <div class="mensagem <?= $tipoMensagem === 'erro' ? 'erro' : 'sucesso' ?>" style="display:block; width:min(100%,520px); margin:0 auto 16px; padding:10px 14px; font-size:13px; border-radius:8px; text-align:center;">
+            <div class="mensagem <?= $tipoMensagem === 'erro' ? 'erro' : 'sucesso' ?>">
                 <?= htmlspecialchars($mensagem) ?>
             </div>
         <?php endif; ?>
@@ -122,23 +140,20 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
         <!-- FORM DE SELEÇÃO -->
         <?php if (!$clienteSelecionado): ?>
         <form class="formulario" action="" method="POST">
-            <select name="id_comprador" required
-                    style="padding:12px; border-radius:6px; font-size:14px; outline:none; border:none;">
-                <option value="">-- Escolha um cliente --</option>
-                <?php while ($c = mysqli_fetch_assoc($listaClientes)): ?>
-                    <?php
-                        $cpfRaw = preg_replace('/\D/', '', $c['cpf']);
-                        $cpfFmt = strlen($cpfRaw) == 11
-                                ? substr($cpfRaw,0,3).'.'.substr($cpfRaw,3,3).'.'.substr($cpfRaw,6,3).'-'.substr($cpfRaw,9,2)
-                                : $c['cpf'];
-                    ?>
-                    <option value="<?= $c['id_comprador'] ?>">
-                        <?= htmlspecialchars($c['nome']) ?> — <?= $cpfFmt ?>
-                    </option>
+                 <input type="search" class="pesquisa-datalist cadastro-seletor" name="cliente" list="clientes_disponiveis" placeholder="Pesquisar cliente por nome ou CPF" required>
+                 <datalist id="clientes_disponiveis">
+                <?php
+                mysqli_data_seek($listaClientes, 0);
+                while ($c = mysqli_fetch_assoc($listaClientes)):
+                    $cpfRaw = preg_replace('/\D/', '', $c['cpf']);
+                    $cpfFmt = strlen($cpfRaw) == 11
+                            ? substr($cpfRaw,0,3).'.'.substr($cpfRaw,3,3).'.'.substr($cpfRaw,6,3).'-'.substr($cpfRaw,9,2)
+                            : $c['cpf'];
+                ?>
+                    <option value="<?= htmlspecialchars($c['nome']) ?>"><?= htmlspecialchars($cpfFmt) ?></option>
                 <?php endwhile; ?>
-            </select>
-
-            <button type="submit" name="selecionar" style="width:200px;">
+            </datalist>
+            <button type="submit" name="selecionar" class="cadastro-carregar">
                 Carregar Cliente
             </button>
         </form>
@@ -180,12 +195,15 @@ $listaClientes = mysqli_query($conn, "SELECT id_comprador, nome, cpf FROM compra
                    placeholder="Telefone ((00) 00000-0000)"
                    value="<?= htmlspecialchars($telFmt) ?>">
 
-            <div style="display:flex; gap:10px;">
-                <button type="submit" name="salvar" style="width:200px;">
+            <div class="cadastro-acoes">
+                <button type="submit" name="salvar" class="cadastro-salvar">
                     Salvar Alterações
                 </button>
+                <button type="submit" name="excluir" class="cadastro-excluir">
+                    Excluir Cliente
+                </button>
                 <a href="Ajuste_C.php">
-                    <button type="button" style="width:160px; padding:12px; border:none; border-radius:6px; background:#888; color:#fff; font-weight:bold; cursor:pointer;">
+                    <button type="button" class="cadastro-trocar">
                         Trocar Cliente
                     </button>
                 </a>
