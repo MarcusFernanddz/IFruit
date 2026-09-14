@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
@@ -8,6 +9,9 @@
 -- Versão do PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+=======
+﻿SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+>>>>>>> b8121330b8ff169af1c103ddfccd43ee245c4ab6
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -70,6 +74,7 @@ INSERT INTO `comprador` (`id_comprador`, `nome`, `cpf`, `email`, `telefone`) VAL
 --
 
 CREATE TABLE `fruta` (
+<<<<<<< HEAD
   `id_fruta` int(11) NOT NULL,
   `nome` varchar(40) NOT NULL,
   `precokg` float NOT NULL
@@ -99,6 +104,40 @@ CREATE TABLE `itemvenda` (
   `nome` varchar(40) NOT NULL,
   `peso` float NOT NULL,
   `preco` float NOT NULL
+=======
+  `id_fruta`      int(11)     NOT NULL AUTO_INCREMENT,
+  `nome`          varchar(40) NOT NULL,
+  `precokg`       float       NOT NULL,
+  PRIMARY KEY (`id_fruta`),
+  UNIQUE KEY `nome_unique` (`nome`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `venda` (
+  `id_venda`         int(11)     NOT NULL AUTO_INCREMENT,
+  `id_administrador` int(11)     NOT NULL,
+  `id_comprador`     int(11)     DEFAULT NULL,
+  `cliente_nome`     varchar(40) NOT NULL,
+  `valortotal`       double      NOT NULL,
+  `datavenda`        date        NOT NULL,
+  `numrecib`         int(11)     NOT NULL,
+  `formapag`         varchar(30) NOT NULL,
+  PRIMARY KEY (`id_venda`),
+  UNIQUE KEY `numrecib` (`numrecib`),
+  KEY `id_administrador` (`id_administrador`),
+  KEY `id_comprador` (`id_comprador`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `itemvenda` (
+  `id_itemvenda` int(11)     NOT NULL AUTO_INCREMENT,
+  `id_venda`     int(11)     NOT NULL,
+  `id_fruta`     int(11)     DEFAULT NULL,
+  `nome`         varchar(40) NOT NULL,
+  `peso`         float       NOT NULL,
+  `preco`        float       NOT NULL,
+  PRIMARY KEY (`id_itemvenda`),
+  KEY `id_venda` (`id_venda`),
+  KEY `id_fruta` (`id_fruta`)
+>>>>>>> b8121330b8ff169af1c103ddfccd43ee245c4ab6
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -244,7 +283,16 @@ ALTER TABLE `itemvenda`
 --
 ALTER TABLE `venda`
   ADD CONSTRAINT `venda_fk_administrador` FOREIGN KEY (`id_administrador`) REFERENCES `administrador` (`id_administrador`),
+<<<<<<< HEAD
   ADD CONSTRAINT `venda_fk_comprador` FOREIGN KEY (`id_comprador`) REFERENCES `comprador` (`id_comprador`) ON DELETE SET NULL;
+=======
+  ADD CONSTRAINT `venda_fk_comprador`     FOREIGN KEY (`id_comprador`)     REFERENCES `comprador`     (`id_comprador`) ON DELETE SET NULL;
+
+ALTER TABLE `itemvenda`
+  ADD CONSTRAINT `itemvenda_fk_venda` FOREIGN KEY (`id_venda`) REFERENCES `venda` (`id_venda`) ON DELETE CASCADE,
+  ADD CONSTRAINT `itemvenda_fk_fruta` FOREIGN KEY (`id_fruta`) REFERENCES `fruta` (`id_fruta`) ON DELETE SET NULL;
+
+>>>>>>> b8121330b8ff169af1c103ddfccd43ee245c4ab6
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
