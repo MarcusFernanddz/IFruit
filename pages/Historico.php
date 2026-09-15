@@ -72,6 +72,78 @@ if ($temVendas) {
 } else {
     $totalPaginas = 1;
 }
+
+$exportacao = $_GET['export'] ?? '';
+$linhasExportacao = $linhas;
+if ($exportacao === 'venda') {
+    $idVendaExportacao = (int) ($_GET['id'] ?? 0);
+    $linhasExportacao = array_values(array_filter(
+        $linhas,
+        static fn ($linha) => (int) $linha['venda']['id_venda'] === $idVendaExportacao
+    ));
+}
+
+if ($exportacao === 'html' || $exportacao === 'pdf' || $exportacao === 'venda') {
+    $tituloExportacao = $exportacao === 'venda'
+        ? 'Imprimir venda #' . ($idVendaExportacao ?? '')
+        : ($exportacao === 'pdf' ? 'Imprimir histórico de vendas' : 'Histórico de vendas');
+    ?>
+    <!doctype html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title><?= htmlspecialchars($tituloExportacao) ?></title>
+        <style>
+            body { font-family: Arial, sans-serif; color: #222; margin: 32px; }
+            h1 { color: #0f3d2e; margin-bottom: 24px; }
+            .planilha { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { border: 1px solid #bfc8c3; padding: 8px; text-align: left; }
+            th { background: #0f3d2e; color: #fff; white-space: nowrap; }
+            tbody tr:nth-child(even) { background: #f3f6f4; }
+            .numero { text-align: right; white-space: nowrap; }
+            .total-venda { font-weight: bold; background: #e2eee7; white-space: nowrap; }
+            @media print {
+                @page { size: landscape; margin: 10mm; }
+                body { margin: 0; }
+                .planilha { font-size: 10px; }
+                tr { page-break-inside: avoid; }
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Histórico de Vendas</h1>
+        <?php if ($linhasExportacao): ?>
+            <table class="planilha">
+                <thead><tr><th>ID Venda</th><th>Cliente</th><th>Data</th><th>Pagamento</th><th>Recibo</th><th>Produto</th><th>Quantidade</th><th>Preço / kg</th><th>Subtotal</th><th>Total da venda</th></tr></thead>
+                <tbody>
+            <?php foreach ($linhasExportacao as $linha): $venda = $linha['venda']; $itens = $linha['itens'] ?: [['produto' => 'Nenhum produto encontrado', 'peso' => 0, 'preco' => 0, 'subtotal' => 0]]; ?>
+                    <?php foreach ($itens as $item): ?>
+                        <tr>
+                            <td><?= (int) $venda['id_venda'] ?></td>
+                            <td><?= htmlspecialchars($venda['cliente'] ?? 'Cliente não informado') ?></td>
+                            <td><?= htmlspecialchars($venda['datavenda'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($venda['formapag'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($venda['numrecib'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($item['produto']) ?></td>
+                            <td class="numero"><?= number_format($item['peso'], 3, ',', '.') ?> kg</td>
+                            <td class="numero"><?= moeda($item['preco']) ?></td>
+                            <td class="numero"><?= moeda($item['subtotal']) ?></td>
+                            <td class="numero total-venda"><?= moeda($venda['valortotal']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>Nenhuma venda encontrada.</p>
+        <?php endif; ?>
+        <?php if ($exportacao === 'pdf' || $exportacao === 'venda'): ?><script>window.addEventListener('load', function () { window.print(); });</script><?php endif; ?>
+    </body>
+    </html>
+    <?php
+    exit;
+}
 ?>
 <!doctype html>
 <html lang="pt-BR">
@@ -81,13 +153,13 @@ if ($temVendas) {
     <title>Histórico de Vendas</title>
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/historico.css">
+    <link rel="stylesheet" href="../css/historico.css?v=2">
 </head>
 <body>
 <?php $paginaAtiva = 'historico'; require_once 'sidebar.php'; ?>
 <main class="historico-container">
     <div class="historico-header"><h2>Histórico de Vendas</h2></div>
-    <div class="botoes-exportacao"><a class="btn-html" href="?export=html">Abrir como HTML</a><a class="btn-pdf" href="?export=html">Imprimir / Salvar PDF</a></div>
+    <div class="botoes-exportacao"><a class="btn-html" href="?export=html" target="_blank" rel="noopener">Abrir como HTML</a><a class="btn-pdf" href="?export=pdf" target="_blank" rel="noopener">Imprimir / Salvar PDF</a></div>
     <div class="tabela-box">
         <table class="tabela-vendas">
             <thead><tr><th>ID</th><th>Cliente</th><th>Total</th><th>Data</th><th>Pagamento</th><th>Recibo</th><th>Ação</th></tr></thead>
@@ -112,7 +184,10 @@ if ($temVendas) {
     <?php foreach ($linhas as $linha): $venda = $linha['venda']; $id = (int) $venda['id_venda']; ?>
     <div class="modal" id="venda-<?= $id ?>">
         <div class="modal-conteudo">
-            <div class="modal-header"><h3>Detalhes da venda #<?= $id ?></h3><a class="btn-fechar" href="#" aria-label="Fechar">&times;</a></div>
+            <div class="modal-header">
+                <h3>Detalhes da venda #<?= $id ?></h3>
+                <a class="btn-fechar" href="#" aria-label="Fechar">&times;</a>
+            </div>
             <div class="modal-body">
                 <div class="informacoes-venda">
                     <div class="informacao"><span class="informacao-label">Cliente</span><span class="informacao-valor"><?= htmlspecialchars($venda['cliente'] ?? 'Cliente não informado') ?></span></div>
@@ -125,6 +200,7 @@ if ($temVendas) {
                 <table class="tabela-itens"><thead><tr><th>Produto</th><th>Quantidade</th><th>Preço / kg</th><th>Subtotal</th></tr></thead><tbody>
                 <?php if ($linha['itens']): foreach ($linha['itens'] as $item): ?><tr><td><?= htmlspecialchars($item['produto']) ?></td><td><?= number_format($item['peso'], 3, ',', '.') ?> kg</td><td><?= moeda($item['preco']) ?></td><td><?= moeda($item['subtotal']) ?></td></tr><?php endforeach; else: ?><tr><td colspan="4">Nenhum produto encontrado nesta venda.</td></tr><?php endif; ?>
                 </tbody></table>
+                <div class="modal-acoes"><a class="btn-ver btn-imprimir-modal" href="?export=venda&amp;id=<?= $id ?>" target="_blank" rel="noopener">Imprimir</a></div>
             </div>
         </div>
     </div>
@@ -136,5 +212,12 @@ if ($temVendas) {
         <?php if ($pagina < $totalPaginas): ?><a href="?page=<?= $pagina + 1 ?>">&rsaquo;</a><?php endif; ?>
     </div><?php endif; ?>
 </main>
+<script>
+    document.addEventListener('keydown', function (evento) {
+        if (evento.key === 'Escape' && window.location.hash.startsWith('#venda-')) {
+            window.location.hash = '';
+        }
+    });
+</script>
 </body>
 </html>
