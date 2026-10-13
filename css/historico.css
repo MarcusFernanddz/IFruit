@@ -23,6 +23,115 @@
     margin-bottom: 20px;
 }
 
+.painel-filtros {
+    margin-bottom: 20px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+}
+
+.filtros-barra {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 16px;
+    background: #0f3d2e;
+    color: #fff;
+}
+
+.filtros-barra h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.btn-alternar-filtros {
+    display: inline-flex;
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+}
+
+.btn-alternar-filtros::before {
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    content: "";
+    transform: rotate(45deg) translateY(-2px);
+}
+
+.btn-alternar-filtros[aria-expanded="false"]::before {
+    transform: rotate(225deg) translateY(-2px);
+}
+
+.btn-alternar-filtros:hover {
+    background: rgba(255, 255, 255, .12);
+}
+
+.btn-alternar-filtros:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.filtros-historico {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    gap: 14px;
+    padding: 18px;
+    background: #f7faf8;
+}
+
+.filtros-historico[hidden] {
+    display: none;
+}
+
+.filtros-historico label {
+    display: grid;
+    gap: 6px;
+    color: #444;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.filtros-historico input,
+.filtros-historico select {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid #cbd4cf;
+    border-radius: 5px;
+    background: #fff;
+    color: #333;
+    font: inherit;
+    font-weight: 400;
+}
+
+.filtros-acoes {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+}
+
+.filtros-acoes .btn-html {
+    min-height: 40px;
+}
+
+.btn-limpar {
+    padding: 10px 4px;
+    color: #0f3d2e;
+    font-weight: 600;
+    text-decoration: none;
+}
+
 .btn-html,
 .btn-pdf,
 .btn-ver {
@@ -210,7 +319,18 @@
         grid-template-columns: 1fr;
     }
 
+    .filtros-historico {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 14px;
+    }
+
     .modal {
         padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .filtros-historico {
+        grid-template-columns: 1fr;
     }
 }

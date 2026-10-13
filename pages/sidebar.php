@@ -1,4 +1,7 @@
 ﻿<?php
+require_once __DIR__ . '/../connect/auth.php';
+exigirLogin();
+
 /**
  * sidebar.php â€” Componente reutilizÃ¡vel da navegaÃ§Ã£o lateral do IFruit
  *
@@ -14,6 +17,7 @@
  */
 
 $paginaAtiva = $paginaAtiva ?? '';
+$usuarioSidebar = usuarioAtual();
 ?>
 
 <aside class="sidebar">
@@ -60,7 +64,25 @@ $paginaAtiva = $paginaAtiva ?? '';
             </a>
         </div>
 
+        <?php if (($usuarioSidebar['nivel_acesso'] ?? '') === 'admin'): ?>
+            <div class="nav-item <?= $paginaAtiva === 'usuarios' ? 'active' : '' ?>">
+                <a href="Usuarios.php">
+                    <div class="label">Contas de acesso</div>
+                    <div class="sublabel">Registrar estagiários</div>
+                </a>
+            </div>
+        <?php endif; ?>
+
     </nav>
+
+    <div class="sidebar-account">
+        <strong><?= htmlspecialchars($usuarioSidebar['nome'] ?? '') ?></strong>
+        <span><?= htmlspecialchars($usuarioSidebar['email'] ?? '') ?></span>
+        <form method="post" action="sair.php">
+            <?= campoTokenCsrf() ?>
+            <button type="submit">Sair</button>
+        </form>
+    </div>
 
 </aside>
 

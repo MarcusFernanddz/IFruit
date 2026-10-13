@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../connect/auth.php';
+exigirLogin();
 require_once __DIR__ . '/../connect/conexao.php';
 
 function table_exists($con, $name){
@@ -47,7 +49,9 @@ if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $saleDateInput)) {
 $customPayment = trim($_POST['formapag_custom'] ?? '');
 $paymentMethod = $customPayment !== '' ? substr($customPayment, 0, 30) : ($_POST['formapag'] ?? 'Dinheiro');
 // Handle POST save (DB when available, CSV fallback otherwise)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha'])) {
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && !validarTokenCsrf($_POST['token_csrf'] ?? null)) {
+  $error = 'Sua sessão expirou. Atualize a página antes de salvar.';
+} elseif (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && !isset($_POST['adicionar_linha']) && !isset($_POST['remover_linha'])) {
   $cliente_name = $_POST['cliente_name'] ?? null;
   $items = [];
   if (isset($_POST['items'])) {
@@ -112,91 +116,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha']) &
           $prepared[] = ['id_fruta' => $id_fruta, 'nome' => $nome, 'peso' => $peso, 'preco' => $preco, 'subtotal' => $subtotal];
         }
 
-        // determine administrador id; if missing, fallback to CSV
-        $forceCsv = false;
-        $id_adm = null;
-        if (table_exists($con, 'administrador')) {
-          $r = mysqli_query($con, "SELECT id_administrador FROM administrador WHERE id_administrador = 1 LIMIT 1");
-          if ($r && mysqli_num_rows($r) > 0) {
-            $id_adm = 1; // prefer id 1 per user test instruction
-          } else {
-            $r2 = mysqli_query($con, "SELECT id_administrador FROM administrador LIMIT 1");
-            if ($r2 && mysqli_num_rows($r2) > 0) {
-              $id_adm = intval(mysqli_fetch_assoc($r2)['id_administrador']);
-            } else {
-              // try to create a default administrator record (minimal) to satisfy FK
-              $nomeDef = mysqli_real_escape_string($con, 'Administrador');
-              $emailDef = mysqli_real_escape_string($con, 'admin@local');
-              $senhaDef = mysqli_real_escape_string($con, '');
-              $ins = mysqli_query($con, "INSERT INTO administrador (nome, email, senha) VALUES ('$nomeDef', '$emailDef', '$senhaDef')");
-              if ($ins) {
-                $id_adm = intval(mysqli_insert_id($con));
-              } else {
-                $forceCsv = true;
-                $error = 'Nenhum administrador encontrado e não foi possível criar um administrador padrão. Salvando em CSV como fallback.';
-              }
-            }
-          }
-        } else {
-          $forceCsv = true;
-          $error = 'Tabela administrador ausente. Salvando em CSV como fallback.';
-        }
-
-        if ($forceCsv) {
-          // fallback: save to CSV file in data/ (reuse similar logic to below)
-          $dataDir = __DIR__ . '/../data';
-          if (!is_dir($dataDir)) mkdir($dataDir, 0755, true);
-          $csvFile = $dataDir . '/sales.csv';
-
-          // enrich items with price if fruta available
-          $total = 0.0;
-          $itemsOut = [];
-          foreach ($items as $it) {
-            $fruta_id = intval($it['fruta_id'] ?? 0);
-            $quantidade = floatval($it['quantidade'] ?? 0);
-            $preco = 0.0;
-              if ($hasFrutas) {
-                $r = mysqli_query($con, "SELECT precokg FROM fruta WHERE id_fruta = " . $fruta_id . " LIMIT 1");
-              $row = mysqli_fetch_assoc($r);
-              $preco = $row ? floatval($row['precokg']) : 0.0;
-            }
-            $subtotal = $preco * $quantidade;
-            $total += $subtotal;
-            $itemsOut[] = ['fruta_id' => $fruta_id, 'quantidade' => $quantidade, 'preco_unit' => $preco, 'subtotal' => $subtotal];
-          }
-
-          // ensure CSV header
-          $nextId = 1;
-          if (!file_exists($csvFile)) {
-            $h = fopen($csvFile, 'w');
-            fputcsv($h, ['id','cliente_id','total','created_at','items_json']);
-            fclose($h);
-          } else {
-            $lines = file($csvFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            if (count($lines) > 1) {
-              $last = array_pop($lines);
-              $cols = str_getcsv($last);
-              if (!empty($cols[0])) $nextId = intval($cols[0]) + 1;
-            }
-          }
-
-          $h = fopen($csvFile, 'a');
-          $now = $saleDate . ' ' . date('H:i:s');
-          $clientField = $cliente_name ? $cliente_name : $cliente_id;
-          fputcsv($h, [$nextId, $clientField, number_format($total,2,'.',''), $now, json_encode($itemsOut, JSON_UNESCAPED_UNICODE)]);
-          fclose($h);
-          $saved = true;
-          $saved_total = $total;
-        }
-
         mysqli_begin_transaction($con);
         try {
           $datavenda = $saleDate;
           $numrecib = mt_rand(100000, 9999999);
           $formapag = $paymentMethod;
+          $id_adm = (int) $_SESSION['usuario']['id'];
+          $emailRegistrador = $_SESSION['usuario']['email'];
+          $nomeRegistrador = $_SESSION['usuario']['nome'];
 
-          $stmt = mysqli_prepare($con, "INSERT INTO venda (id_administrador, id_comprador, cliente_nome, valortotal, datavenda, numrecib, formapag) VALUES (?, ?, ?, ?, ?, ?, ?)");
-          mysqli_stmt_bind_param($stmt, 'iisdsis', $id_adm, $cliente_id, $cliente_nome, $total, $datavenda, $numrecib, $formapag);
+          $stmt = mysqli_prepare($con, "INSERT INTO venda (id_administrador, id_comprador, cliente_nome, valortotal, datavenda, numrecib, formapag, registrado_por_email, registrado_por_nome) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+          mysqli_stmt_bind_param($stmt, 'iisdsisss', $id_adm, $cliente_id, $cliente_nome, $total, $datavenda, $numrecib, $formapag, $emailRegistrador, $nomeRegistrador);
           mysqli_stmt_execute($stmt);
           $sale_id = mysqli_insert_id($con);
 
@@ -244,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha']) &
       $nextId = 1;
       if (!file_exists($csvFile)) {
         $h = fopen($csvFile, 'w');
-        fputcsv($h, ['id','cliente_id','total','created_at','items_json']);
+        fputcsv($h, ['id','cliente_id','total','created_at','items_json','registrado_por_email','registrado_por_nome']);
         fclose($h);
       } else {
         // read last line to get id
@@ -259,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha']) &
       $h = fopen($csvFile, 'a');
       $now = $saleDate . ' ' . date('H:i:s');
       $clientField = $cliente_name ? $cliente_name : $cliente_id;
-      fputcsv($h, [$nextId, $clientField, number_format($total,2,'.',''), $now, json_encode($itemsOut, JSON_UNESCAPED_UNICODE)]);
+      fputcsv($h, [$nextId, $clientField, number_format($total,2,'.',''), $now, json_encode($itemsOut, JSON_UNESCAPED_UNICODE), $_SESSION['usuario']['email'], $_SESSION['usuario']['nome']]);
       fclose($h);
       $saved = true;
       $saved_total = $total;
@@ -274,7 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha']) &
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>iFruit - Registrar Venda</title>
-  <link rel="stylesheet" href="../css/sidebar.css">
+  <link rel="stylesheet" href="../css/sidebar.css?v=2">
   <link rel="stylesheet" href="../css/global.css">
   <link rel="stylesheet" href="../css/venda.css?v=<?= filemtime(__DIR__ . '/../css/venda.css') ?>">
 </head>
@@ -294,6 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['adicionar_linha']) &
 
     <p>Nova Venda</p>
     <form id="saleForm" method="POST" class="formulario sales-form">
+      <?= campoTokenCsrf() ?>
       <?php if ($clientes): ?>
         <datalist id="clientes_disponiveis">
           <?php mysqli_data_seek($clientes, 0); while ($c = mysqli_fetch_assoc($clientes)): ?>

@@ -1,17 +1,56 @@
 <?php
-session_start();
+require_once __DIR__ . '/../connect/auth.php';
+require_once __DIR__ . '/../connect/conexao.php';
 
 $erro = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (usuarioAtual()) {
+    header('Location: Venda.php');
+    exit;
+}
+
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $senha = $_POST['senha'] ?? '';
 
-    if ($email === '' || $senha === '') {
-        $erro = 'Preencha o e-mail e a senha.';
+    if (!validarTokenCsrf($_POST['token_csrf'] ?? null)) {
+        $erro = 'Sua sessão expirou. Atualize a página e tente novamente.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || $senha === '') {
+        $erro = 'Informe um e-mail válido e a senha.';
+    } elseif (!esquemaAutenticacaoPronto($con)) {
+        $erro = 'A atualização do banco ainda não foi aplicada. Siga as instruções de AUTENTICACAO.md.';
     } else {
-        header('Location: CadCliente.php');
-        exit;
+        $consulta = mysqli_prepare($con, 'SELECT id_administrador, nome, email, senha, nivel_acesso, ativo FROM administrador WHERE email = ? LIMIT 1');
+        if (!$consulta) {
+            $erro = 'Não foi possível consultar as contas. Aplique a atualização do banco de dados e tente novamente.';
+        } else {
+            mysqli_stmt_bind_param($consulta, 's', $email);
+            mysqli_stmt_execute($consulta);
+            $resultado = mysqli_stmt_get_result($consulta);
+            $conta = $resultado ? mysqli_fetch_assoc($resultado) : null;
+
+            if (!$conta || !(int) $conta['ativo'] || !password_verify($senha, $conta['senha'])) {
+                $erro = 'E-mail ou senha incorretos, ou conta desativada.';
+            } else {
+                if (password_needs_rehash($conta['senha'], PASSWORD_DEFAULT)) {
+                    $novoHash = password_hash($senha, PASSWORD_DEFAULT);
+                    $atualizar = mysqli_prepare($con, 'UPDATE administrador SET senha = ? WHERE id_administrador = ?');
+                    mysqli_stmt_bind_param($atualizar, 'si', $novoHash, $conta['id_administrador']);
+                    mysqli_stmt_execute($atualizar);
+                }
+
+                session_regenerate_id(true);
+                $_SESSION['usuario'] = [
+                    'id' => (int) $conta['id_administrador'],
+                    'nome' => $conta['nome'],
+                    'email' => $conta['email'],
+                    'nivel_acesso' => $conta['nivel_acesso'],
+                ];
+                unset($_SESSION['token_csrf']);
+                header('Location: Venda.php');
+                exit;
+            }
+        }
     }
 }
 ?>
@@ -45,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="alert-erro"><span aria-hidden="true">!</span><?= htmlspecialchars($erro) ?></div>
             <?php endif; ?>
             <form method="POST" action="">
+                <?= campoTokenCsrf() ?>
                 <div class="field">
                     <label for="email">E-mail</label>
                     <div class="input-wrap">
@@ -61,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <button type="submit" class="btn-entrar">Entrar no sistema</button>
             </form>
-            <div class="card-footer">IFruit &copy; <?= date('Y') ?> &mdash; IF Goiano Campus Morrinhos</div>
+            <div class="card-footer">IFruit &copy; <?= date('Y') ?> &mdash; IF Goiano Campus Morrinhos<br><a href="configurar-admin.php">Configuração inicial do administrador</a></div>
         </div>
     </div>
 </div>

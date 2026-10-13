@@ -1,5 +1,7 @@
 <?php
-include __DIR__ . '/../connect/conexao.php';
+require_once __DIR__ . '/../connect/auth.php';
+exigirLogin();
+require_once __DIR__ . '/../connect/conexao.php';
 
 $mensagem = '';
 $tipoMensagem = '';
@@ -62,7 +64,7 @@ if (isset($_POST['cadastrar'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iFruit - Cadastros</title>
-    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/sidebar.css?v=2">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/cadastros.css">
 </head>

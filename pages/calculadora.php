@@ -1,6 +1,8 @@
 <?php
+require_once __DIR__ . '/../connect/auth.php';
+exigirLogin();
 $paginaAtiva = 'calculadora';
-include __DIR__ . '/../connect/conexao.php';
+require_once __DIR__ . '/../connect/conexao.php';
 
 $itens = [];
 $totalGeral = 0;
@@ -57,7 +59,7 @@ if (!isset($_POST['remover_linha']) && !isset($_POST['adicionar_linha']) && isse
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Preços</title>
-    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/sidebar.css?v=2">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/calculadora.css">
 </head>

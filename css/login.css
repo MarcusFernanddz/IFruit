@@ -37,6 +37,7 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; background-color:
 .card-header h2 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 500; color: var(--texto-escuro); margin-bottom: 6px; }
 .card-header p { font-size: 14px; color: var(--texto-medio); font-weight: 300; }
 .alert-erro { background: #fdf0ef; border: 1px solid #f5c6c2; border-left: 3px solid var(--erro); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--erro); margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+.alert-sucesso { background: #e8f4ec; border: 1px solid #b9dcc4; border-left: 3px solid var(--verde-claro); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--verde-escuro); margin-bottom: 24px; }
 .field { margin-bottom: 20px; }
 .field label { display: block; font-size: 13px; font-weight: 500; color: var(--texto-medio); margin-bottom: 8px; letter-spacing: .02em; }
 .input-wrap { position: relative; }

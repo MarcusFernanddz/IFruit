@@ -1,0 +1,141 @@
+.usuarios-container {
+    margin-left: 270px;
+    min-height: 100vh;
+    padding: 30px;
+}
+
+.usuarios-cabecalho {
+    margin-bottom: 24px;
+}
+
+.usuarios-cabecalho p {
+    margin: 0 0 6px;
+    color: #637169;
+    font-size: 13px;
+}
+
+.usuarios-cabecalho h1 {
+    margin: 0;
+    color: #26352c;
+    font-size: 26px;
+}
+
+.usuarios-secao {
+    margin-bottom: 24px;
+    padding: 20px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+}
+
+.usuarios-secao h2 {
+    margin: 0 0 16px;
+    color: #26352c;
+    font-size: 18px;
+}
+
+.usuarios-formulario {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(150px, 1fr)) auto;
+    align-items: end;
+    gap: 14px;
+}
+
+.usuarios-formulario label {
+    display: grid;
+    gap: 6px;
+    color: #46534b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.usuarios-formulario input {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid #cbd4cf;
+    border-radius: 5px;
+    font: inherit;
+}
+
+.usuarios-formulario button,
+.usuarios-acao {
+    min-height: 40px;
+    padding: 9px 14px;
+    border: 0;
+    border-radius: 5px;
+    background: #0f3d2e;
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.usuarios-tabela-wrap {
+    overflow-x: auto;
+}
+
+.usuarios-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.usuarios-tabela th {
+    padding: 12px;
+    background: #0f3d2e;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.usuarios-tabela td {
+    padding: 12px;
+    border-bottom: 1px solid #e7ece9;
+    color: #3f4b44;
+}
+
+.usuarios-tabela form {
+    margin: 0;
+}
+
+.usuarios-acao {
+    min-height: 34px;
+    padding: 7px 10px;
+    white-space: nowrap;
+}
+
+.usuarios-alerta {
+    margin-bottom: 18px;
+    padding: 12px 15px;
+    border-radius: 5px;
+}
+
+.usuarios-alerta.erro {
+    background: #fdf0ef;
+    color: #9f2d24;
+}
+
+.usuarios-alerta.sucesso {
+    background: #e8f4ec;
+    color: #205d35;
+}
+
+@media (max-width: 900px) {
+    .usuarios-container {
+        margin-left: 0;
+    }
+
+    .usuarios-formulario {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .usuarios-container {
+        padding: 18px;
+    }
+
+    .usuarios-formulario {
+        grid-template-columns: 1fr;
+    }
+}

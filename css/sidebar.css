@@ -91,6 +91,56 @@ nav {
     margin-top: 2px;
 }
 
+.sidebar-account {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+    min-width: 0;
+    padding: 14px 16px 18px;
+    border-top: 1px solid rgba(255, 255, 255, .14);
+    color: #cde8d9;
+}
+
+.sidebar-account strong {
+    display: block;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: #fff;
+    font-size: 13px;
+}
+
+.sidebar-account span {
+    display: block;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: #b7d7c7;
+    font-size: 11px;
+}
+
+.sidebar-account form {
+    margin-top: 5px;
+}
+
+.sidebar-account button {
+    display: inline-flex;
+    min-height: 34px;
+    align-items: center;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.sidebar-account button:hover {
+    background: rgba(255, 255, 255, .1);
+    color: #1ed760;
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
     .sidebar {
